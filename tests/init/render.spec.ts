@@ -52,4 +52,9 @@ describe('renderContent', () => {
   it('is idempotent over unchanged content', () => {
     expect(renderContent('plain', { replacements: {} })).toBe('plain')
   })
+
+  it('replaces every occurrence of the same token, not just the first', () => {
+    const out = renderContent('<test command> and again <test command>', { replacements: { '<test command>': 'npm test' } })
+    expect(out).toBe('npm test and again npm test')
+  })
 })

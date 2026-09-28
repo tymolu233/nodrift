@@ -28,7 +28,7 @@ if echo "$changed" | grep -qE '\.md$'; then
   if npm run --silent check:docs >/dev/null 2>&1; then npm run check:docs; fi
 fi
 
-# 规则三：仓库自有的 verify 脚本目录全部执行（L1 起启用）
+# 规则三：仓库自有的 verify 脚本目录全部执行（仓库自有时启用）
 if [ -d scripts/verify ]; then
   for f in scripts/verify/*; do
     [ -x "$f" ] && "$f"

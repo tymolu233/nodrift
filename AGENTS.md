@@ -21,7 +21,7 @@ The hard rules of this repository, for humans and agents. Every rule fits in 1-3
 
 - Decisions and the alternatives they beat → `.agents/notes/` (format governed by note-format)
 - Frozen decisions → `.agents/notes/archived/` (sealed; append-only via note-archive-seal)
-- Distribution content → `templates/` (installed copies stay byte-identical)
+- Distribution content → `templates/` (installed copies stay byte-identical, rendered placeholders excepted)
 - Process how-tos → `docs/`; agent operating skills → `templates/.agents/skills/`
 
 ## Before you push

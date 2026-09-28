@@ -51,7 +51,7 @@ Do not defer a known match to a later corpus audit.
 ## Commands
 
 ```sh
-anti-shishan note new <class> <topic>   # scaffold from the lifecycle template, dated path
+anti-shishan note new --class <class> --title <topic>   # scaffold from the lifecycle template, dated path
 anti-shishan note archive <path>        # seal: insert Archived: and move under archived/<class>/
 anti-shishan check --only note-format,note-classification,note-archive-seal
 ```

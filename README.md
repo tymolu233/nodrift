@@ -19,7 +19,7 @@
 npx anti-shishan-kit init        # 全量装进你的项目目录；已有文件不覆盖，anti-shishan.yml 永远归你改
 ```
 
-装完即得一对入口文档：**README.md 给人读**（骨架随装：项目名/简介/快速开始占位）、**AGENTS.md 给 agent 读**（宪法模板）。`init` 收尾会按仓库状态打印一份区分 agent/human 的 `next steps` 工单——两个入口里没填掉的占位、裁剪配置、首检、接 CI、提交——检出什么报什么，编不出就不报：
+装完即得一对入口文档：**README.md 给人读**（骨架随装：项目名/简介/快速开始占位）、**AGENTS.md 给 agent 读**（宪法模板）。`init` 收尾会按仓库状态打印一份区分 agent/human 的 `next steps` 工单——两个入口里没填掉的占位是检出项（检出什么报什么），裁剪配置、首检、接 CI、提交是每次必给的收尾：
 
 之后把 CLI 装进项目依赖，日常走 npm script 或 `npx anti-shishan <command>`：
 
@@ -85,7 +85,7 @@ npx anti-shishan check
 | CI | `templates/.github/workflows/ci-verdict.yml`（单判决，含两个坑注释）、`ci.yml` + `verify-notes.yml`（无 CLI 时的静态 fallback） | 三选一按是否装 CLI 使用 |
 | 工作流 | `templates/.agents/skills/` 六个 SKILL.md | pre-push-checks / code-review / agent-notes / prose-standard / find-simplifications / trim-cot-leakage |
 | 无 Node fallback | `templates/scripts/check` + `check-notes` | 零依赖 POSIX sh 脚本 |
-| 文档 | `templates/docs/notes-quality-gate.md`、`docs/verify-rules.md` | 笔记语义自检（永不进脚本）、规则脚本化起手清单 |
+| 文档 | `templates/docs/notes-quality-gate.md`、`templates/docs/verify-rules.md` | 笔记语义自检（永不进脚本）、规则脚本化起手清单 |
 | 清单 | `templates/manifest.json` | 受管模板全量清单；`gen:templates` 在构建时校验其与 `templates/` 树一致并嵌入 dist |
 
 ## License

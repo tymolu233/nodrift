@@ -1,9 +1,20 @@
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import { checkNoteFormat } from '../../src/notes/format.js'
 import type { ParsedNotePath } from '../../src/notes/tree.js'
+const tempRoots: string[] = []
+
+function tmpRoot(prefix: string): string {
+  const root = mkdtempSync(join(tmpdir(), prefix))
+  tempRoots.push(root)
+  return root
+}
+
+afterEach(() => {
+  while (tempRoots.length > 0) rmSync(tempRoots.pop() as string, { recursive: true, force: true })
+})
 
 function entry(overrides: Partial<ParsedNotePath> = {}): ParsedNotePath {
   return {
@@ -19,7 +30,7 @@ function entry(overrides: Partial<ParsedNotePath> = {}): ParsedNotePath {
 
 function checked(content: string, overrides: Partial<ParsedNotePath> = {}): ReturnType<typeof checkNoteFormat> {
   const parsed = entry(overrides)
-  const root = mkdtempSync(join(tmpdir(), 'anti-shishan-format-'))
+  const root = tmpRoot('anti-shishan-format-')
   const abs = join(root, parsed.relPath)
   mkdirSync(dirname(abs), { recursive: true })
   writeFileSync(abs, content)

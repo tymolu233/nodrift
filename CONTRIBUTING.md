@@ -17,8 +17,8 @@
 
 ## 权威文档
 
-- 架构地图：`docs/architecture.md`
-- 测试政策：`docs/testing.md`
+- 架构地图：`<docs/architecture.md>`（自建，模板不附带）
+- 测试政策：`<docs/testing.md>`（自建，模板不附带）
 - 机械规则清单：`docs/verify-rules.md`
 - 决策笔记：`.agents/notes/README.md`
 

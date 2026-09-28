@@ -166,4 +166,10 @@ describe('ratchetGate.run', () => {
       'ratchet: unknown option key "budgets" (known: enabled, rules)',
     )
   })
+
+  it('rejects an empty files list rather than scanning the whole repo', async () => {
+    expect(() =>
+      parseRules({ rules: [{ id: 'x', pattern: 'y', files: [], baseline: 'b.json' }] }),
+    ).toThrow(/must not be empty/)
+  })
 })

@@ -56,13 +56,22 @@ function parseNotes(raw: unknown): NotesConfig {
     if (typeof value['root'] !== 'string' || value['root'].length === 0) {
       fail('notes.root must be a non-empty string')
     }
-    notes.root = value['root']
+    const root = value['root']
+    if (root.startsWith('/') || /^[a-zA-Z]:/.test(root) || root.includes('\\') || root.split('/').includes('..')) {
+      fail(`notes.root must be a repo-relative path with forward slashes, no drive letter, and no ".." (got ${JSON.stringify(root)})`)
+    }
+    notes.root = root
   }
   if (value['classes'] !== undefined) {
     if (!Array.isArray(value['classes']) || value['classes'].some((c) => typeof c !== 'string' || c.length === 0)) {
       fail('notes.classes must be a list of non-empty strings')
     }
-    notes.classes = value['classes'] as string[]
+    const classes = value['classes'] as string[]
+    const bad = classes.find((c) => !/^[a-z][a-z0-9-]*$/.test(c))
+    if (bad !== undefined) {
+      fail(`notes.classes entry ${JSON.stringify(bad)} must match the note slug form (lowercase letters/digits/hyphens)`)
+    }
+    notes.classes = classes
   }
   return notes
 }

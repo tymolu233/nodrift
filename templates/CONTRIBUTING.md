@@ -17,8 +17,8 @@ Each rule is 1-3 lines and states only the hard requirement; explanation and exa
 
 ## Authority documents
 
-- Architecture map: `docs/architecture.md`
-- Testing policy: `docs/testing.md`
+- Architecture map: `<docs/architecture.md>` (yours to write — not shipped)
+- Testing policy: `<docs/testing.md>` (yours to write — not shipped)
 - Mechanical-rule inventory: `docs/verify-rules.md`
 - Decision notes: `.agents/notes/README.md`
 

@@ -52,6 +52,16 @@ describe('runGates', () => {
     expect(summary.failed).toBe(false)
   })
 
+  it('wraps a thrown non-Error value into an Error', async () => {
+    const stringThrower = fakeGate('string', async (): Promise<never> => {
+      throw 'plain string failure'
+    })
+    const summary = await runGates({ repoRoot: '/x', gates: [stringThrower], config })
+    expect(summary.failed).toBe(true)
+    expect(summary.runs[0]?.error).toBeInstanceOf(Error)
+    expect(summary.runs[0]?.error?.message).toBe('plain string failure')
+  })
+
   it('marks a throwing gate as failed and continues without failFast', async () => {
     const boom = fakeGate('boom', async () => {
       throw new Error('kaboom')

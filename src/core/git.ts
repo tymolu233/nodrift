@@ -18,7 +18,7 @@ function tryGit(repoRoot: string, args: string[]): string | undefined {
  * line-ending normalized per repo config). Undefined when git cannot answer.
  */
 export function gitBlobHash(repoRoot: string, repoRelativePath: string): string | undefined {
-  return tryGit(repoRoot, ['hash-object', repoRelativePath])
+  return tryGit(repoRoot, ['hash-object', '--', repoRelativePath])
 }
 
 /** True when `git` is callable inside repoRoot. */

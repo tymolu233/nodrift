@@ -31,8 +31,8 @@ const SKELETONS: Record<NoteLifecycle, readonly string[]> = {
   archived: IMPLEMENTED_SECTIONS,
 }
 
-/** Proposal-era words banned from headings in shipped-tense notes. */
-const BANNED_SHIPPED_HEADING = /acceptance criteria/i
+/** Proposal-era words banned from headings in shipped-tense notes (implemented/archived state what IS, never what was planned). */
+const BANNED_SHIPPED_HEADING = /acceptance criteria|^#+\s*(proposal|plan)\b/i
 
 interface ProseLine {
   text: string
@@ -70,7 +70,7 @@ export function checkNoteFormat(absPath: string, entry: ParsedNotePath): Violati
     fail(`slug "${entry.slug}" must be lowercase letters/digits joined by single hyphens`)
   }
 
-  const content = readFileSync(absPath, 'utf8')
+  const content = readFileSync(absPath, 'utf8').replaceAll('\r\n', '\n')
   // An empty file has zero lines; ''.split('\n') would pretend one exists.
   const lines = content === '' ? [] : content.split('\n')
   const prose = proseLines(lines)
@@ -129,7 +129,7 @@ export function checkNoteFormat(absPath: string, entry: ParsedNotePath): Violati
   if (entry.lifecycle === 'implemented' || entry.lifecycle === 'archived') {
     for (const proseLine of prose) {
       if (/^#{2,6}\s/.test(proseLine.text) && BANNED_SHIPPED_HEADING.test(proseLine.text)) {
-        fail(`\`Acceptance criteria\` is a proposal-era heading; an ${entry.lifecycle === 'archived' ? 'archived' : 'implemented'} note states what is (fold it into Decision/Consequences)`, proseLine.line)
+        fail(`${JSON.stringify(proseLine.text.trim())} is a proposal-era heading; an ${entry.lifecycle === 'archived' ? 'archived' : 'implemented'} note states what is (fold it into Decision/Consequences)`, proseLine.line)
       }
     }
   }

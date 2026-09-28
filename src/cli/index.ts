@@ -14,7 +14,7 @@ import { parseRules } from '../gates/ratchet.js'
 import { BUILTIN_GATES, resolveGates } from '../gates/registry.js'
 import { collectNextSteps } from '../init/next-steps.js'
 import { scaffold } from '../init/scaffold.js'
-import { archiveNote } from '../notes/archive.js'
+import { archiveNote, resealArchive } from '../notes/archive.js'
 import { createNote } from '../notes/new.js'
 import { runRatchetUpdate, runRatchetVerify } from '../ratchet/update.js'
 import { formatReport } from '../runner/report.js'
@@ -41,6 +41,9 @@ Commands:
       Create a decision note with the right path and skeleton.
   anti-shishan note archive <note-path> [--dir <path>]
       Move an implemented note into archived/ and seal it (append-only manifest).
+  anti-shishan note reseal [--dir <path>]
+      Rebuild the archive seal from the archived notes on disk (recovery after
+      a torn or hand-edited manifest.json); refuses notes missing their seal line.
   anti-shishan ratchet verify [--config <path>] [--dir <path>]
       Diff forbidden-pattern occurrences against their baselines (read-only).
   anti-shishan ratchet update <rule-id|all> [--config <path>] [--dir <path>]
@@ -139,7 +142,19 @@ function cmdNoteArchive(flags: Record<string, string | boolean>, positionals: st
   if (rel === undefined) throw new Error('note archive: a note path is required')
   const dir = requireDir(flags)
   const config = loadConfigFor(dir, flags)
-  io.stdout(`archived ${rel} -> ${archiveNote(dir, rel, config.notes)}`)
+  // Windows users paste backslash paths; note paths are forward-slash by contract
+  const relNormalized = rel.replaceAll('\\', '/')
+  io.stdout(`archived ${relNormalized} -> ${archiveNote(dir, relNormalized, config.notes)}`)
+  return 0
+}
+
+function cmdNoteReseal(flags: Record<string, string | boolean>, io: CliIo): number {
+  assertOnlyFlags(flags, ['dir', 'config'], 'note reseal')
+  const dir = requireDir(flags)
+  const config = loadConfigFor(dir, flags)
+  const resealed = resealArchive(dir, config.notes)
+  io.stdout(`resealed ${resealed.length} archived note(s)`)
+  for (const rel of resealed) io.stdout(`  sealed   ${rel}`)
   return 0
 }
 
@@ -214,7 +229,8 @@ export async function main(argv: string[], io: CliIo): Promise<number> {
       case 'note':
         if (subcommand === 'new') return cmdNoteNew(flags, io)
         if (subcommand === 'archive') return cmdNoteArchive(flags, positionals, io)
-        throw new Error(`note: unknown subcommand ${JSON.stringify(subcommand ?? '')} (known: new, archive)`)
+        if (subcommand === 'reseal') return cmdNoteReseal(flags, io)
+        throw new Error(`note: unknown subcommand ${JSON.stringify(subcommand ?? '')} (known: new, archive, reseal)`)
       case 'ratchet':
         if (subcommand === 'verify') return cmdRatchetVerify(flags, io)
         if (subcommand === 'update') return cmdRatchetUpdate(flags, positionals, io)

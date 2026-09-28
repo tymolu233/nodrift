@@ -51,6 +51,9 @@ export function parseRules(options: Record<string, unknown>): RatchetRule[] {
     if (!Array.isArray(files) || files.some((glob) => typeof glob !== 'string')) {
       throw new Error(`ratchet: rule "${id}" files must be a list of glob strings`)
     }
+    if (files.length === 0) {
+      throw new Error(`ratchet: rule "${id}" files must not be empty — an empty list would silently scan the whole repo; say what you mean`)
+    }
     if (typeof baseline !== 'string' || baseline.length === 0 || isAbsolute(baseline)
       || baseline.split('/').includes('..') || baseline.includes('\\')) {
       throw new Error(`ratchet: rule "${id}" baseline must be a repo-relative path with forward slashes`)

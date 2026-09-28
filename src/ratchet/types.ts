@@ -4,7 +4,7 @@
  * shrink or retire, never increase. Generalized from deepseek-harness
  * `verify-no-unknown-casts` (MIT) into a per-rule regex form.
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
 
 /** One forbidden-pattern rule from `gates.ratchet.rules`. */
@@ -90,5 +90,8 @@ export function readBaseline(absPath: string, ruleId: string): BaselineFile {
 /** Write a baseline file (2-space JSON, trailing newline), creating parent directories. */
 export function writeBaseline(absPath: string, baseline: BaselineFile): void {
   mkdirSync(dirname(absPath), { recursive: true })
-  writeFileSync(absPath, `${JSON.stringify(baseline, null, 2)}\n`)
+  // tmp + rename: a crash mid-write must never leave a torn baseline behind
+  const tmp = `${absPath}.tmp`
+  writeFileSync(tmp, `${JSON.stringify(baseline, null, 2)}\n`)
+  renameSync(tmp, absPath)
 }

@@ -1,11 +1,22 @@
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import { sha256File } from '../../src/core/hash.js'
 import type { GateContext, KitConfig } from '../../src/core/types.js'
 import { noteArchiveSealGate } from '../../src/gates/note-archive-seal.js'
 import { archiveNote } from '../../src/notes/archive.js'
+const tempRoots: string[] = []
+
+function tmpRoot(prefix: string): string {
+  const root = mkdtempSync(join(tmpdir(), prefix))
+  tempRoots.push(root)
+  return root
+}
+
+afterEach(() => {
+  while (tempRoots.length > 0) rmSync(tempRoots.pop() as string, { recursive: true, force: true })
+})
 
 const CONFIG: KitConfig = {
   notes: {
@@ -16,7 +27,7 @@ const CONFIG: KitConfig = {
 }
 
 function repo(): string {
-  return mkdtempSync(join(tmpdir(), 'anti-shishan-gate-seal-'))
+  return tmpRoot('anti-shishan-gate-seal-')
 }
 
 function write(root: string, rel: string, content: string): void {

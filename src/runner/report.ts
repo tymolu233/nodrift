@@ -16,6 +16,9 @@ export function formatReport(summary: RunSummary): string {
     const bad = run.violations.length > 0 || run.error !== undefined
     if (bad) failedGates += 1
     lines.push(`${bad ? '✗' : '✓'} ${run.gate.id} (${run.admitted} files)`)
+    if (bad) {
+      lines.push(`    doc: ${run.gate.doc}`)
+    }
     if (run.error !== undefined) {
       lines.push(`    ! gate crashed: ${run.error.message}`)
     }

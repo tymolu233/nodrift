@@ -1,10 +1,10 @@
 /**
  * Repository file discovery and glob matching.
  *
- * Uses `git ls-files -co --exclude-standard` when the target is a git
- * repository so untracked-but-intended files are admitted and ignored files
- * are not; falls back to a plain recursive walk otherwise so anti-shishan also
- * works on pre-`git init` projects and extracted tarballs.
+ * Uses `git ls-files` when the target is a git repository so untracked-but-
+ * intended files are admitted and ignored files are not; falls back to a
+ * plain recursive walk otherwise (pre-`git init` projects, tarballs, or when
+ * git itself cannot answer — missing binary, broken .git, dubious ownership).
  */
 import { execFileSync } from 'node:child_process'
 import { existsSync, readdirSync, statSync } from 'node:fs'
@@ -18,13 +18,19 @@ function isGitRepo(repoRoot: string): boolean {
   return existsSync(join(repoRoot, '.git'))
 }
 
+/**
+ * List via git. `-z` NUL-separates so non-ASCII names are NOT C-style quoted
+ * (with quotePath on, `文档.md` prints as an octal-escaped quoted string that
+ * no glob can match — a silently narrowing corpus, the exact failure the
+ * minCorpus sentinel exists to catch).
+ */
 function gitFiles(repoRoot: string): string[] {
-  const out = execFileSync('git', ['ls-files', '-co', '--exclude-standard'], {
+  const out = execFileSync('git', ['ls-files', '-co', '--exclude-standard', '-z'], {
     cwd: repoRoot,
     encoding: 'utf8',
     maxBuffer: 64 * 1024 * 1024,
   })
-  return out.split('\n').filter((line) => line.length > 0)
+  return out.split(String.fromCharCode(0)).filter((line) => line.length > 0)
 }
 
 function walkDir(root: string, dir: string, acc: string[]): void {
@@ -40,10 +46,17 @@ function walkDir(root: string, dir: string, acc: string[]): void {
 
 /**
  * List candidate files in the repository as repo-relative, forward-slash
- * paths. Symlinks are not followed.
+ * paths. Symlinks are not followed. Git failure (no binary, broken .git)
+ * falls through to the walk rather than crashing every gate.
  */
 export function listRepoFiles(repoRoot: string): string[] {
-  if (isGitRepo(repoRoot)) return gitFiles(repoRoot)
+  if (isGitRepo(repoRoot)) {
+    try {
+      return gitFiles(repoRoot)
+    } catch {
+      // fall through to the plain walk: git could not answer for this root
+    }
+  }
   const acc: string[] = []
   walkDir(repoRoot, repoRoot, acc)
   return acc.sort()

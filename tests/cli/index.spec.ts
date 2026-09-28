@@ -216,6 +216,64 @@ describe('note', () => {
     expect(await run('note', 'archive', '.agents/notes/archived/process/2026-09-28-ship-it.md', '--dir', dir)).toBe(1)
   })
 
+  it('archive accepts a Windows-style backslash path', async () => {
+    const noteRel = '.agents/notes/implemented/process/2026-09-28-backslash.md'
+    write(noteRel, [
+      '# Agent Note: Backslash',
+      'Status: implemented',
+      '',
+      '## Problem',
+      '',
+      'p',
+      '',
+      '## Decision',
+      '',
+      'd',
+      '',
+      '## Alternatives considered',
+      '',
+      '- **x** — y',
+      '',
+      '## Consequences',
+      '',
+      'c',
+      '',
+    ].join('\n'))
+    expect(await run('note', 'archive', '.agents\\notes\\implemented\\process\\2026-09-28-backslash.md', '--dir', dir)).toBe(0)
+    expect(out[0]).toContain('.agents/notes/archived/process/2026-09-28-backslash.md')
+  })
+
+  it('note reseal rebuilds a deleted manifest, and enforces its flag set', async () => {
+    const noteRel = '.agents/notes/implemented/process/2026-09-28-reseal-cli.md'
+    write(noteRel, [
+      '# Agent Note: Reseal CLI',
+      'Status: implemented',
+      '',
+      '## Problem',
+      '',
+      'p',
+      '',
+      '## Decision',
+      '',
+      'd',
+      '',
+      '## Alternatives considered',
+      '',
+      '- **x** — y',
+      '',
+      '## Consequences',
+      '',
+      'c',
+      '',
+    ].join('\n'))
+    expect(await run('note', 'archive', noteRel, '--dir', dir)).toBe(0)
+    rmSync(join(dir, '.agents/notes/archived/manifest.json'), { force: true })
+    expect(await run('note', 'reseal', '--dir', dir)).toBe(0)
+    expect(out.join('\n')).toContain('resealed 1 archived note(s)')
+    expect(await run('note', 'reseal', '--species', 'x', '--dir', dir)).toBe(1)
+    expect(err[err.length - 1]).toMatch(/unknown flag/)
+  })
+
   it('archive without a path is a usage error', async () => {
     expect(await run('note', 'archive', '--dir', dir)).toBe(1)
     expect(err[0]).toMatch(/a note path is required/)

@@ -75,6 +75,24 @@ describe('loadConfig', () => {
     expect(() => loadConfig(dir)).toThrow(/notes.classes must be a list/)
   })
 
+  it('rejects notes.root forms that escape the repo', () => {
+    config('notes: {root: "/abs"}\n')
+    expect(() => loadConfig(dir)).toThrow(/repo-relative/)
+    config('notes: {root: "C:/win"}\n')
+    expect(() => loadConfig(dir)).toThrow(/repo-relative/)
+    config('notes: {root: "docs\\\\notes"}\n')
+    expect(() => loadConfig(dir)).toThrow(/repo-relative/)
+    config('notes: {root: "../outside"}\n')
+    expect(() => loadConfig(dir)).toThrow(/repo-relative/)
+  })
+
+  it('rejects note classes that break the slug form', () => {
+    config('notes: {classes: ["Has Spaces"]}\n')
+    expect(() => loadConfig(dir)).toThrow(/slug form/)
+    config('notes: {classes: [".."]}\n')
+    expect(() => loadConfig(dir)).toThrow(/slug form/)
+  })
+
   it('validates the gates section', () => {
     config('gates: [md-wrap]\n')
     expect(() => loadConfig(dir)).toThrow(/gates must be a mapping/)

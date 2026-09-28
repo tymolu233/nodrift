@@ -42,6 +42,21 @@ describe('listRepoFiles', () => {
     expect(files).toContain('untracked.md')
     expect(files).not.toContain('ignored.log')
   })
+
+  it('admits non-ASCII filenames in git mode (no quotePath octal escaping)', () => {
+    put('文档.md')
+    execFileSync('git', ['init', '-q'], { cwd: dir })
+    execFileSync('git', ['add', '文档.md'], { cwd: dir })
+    const files = listRepoFiles(dir)
+    expect(files).toContain('文档.md')
+    expect(matchesAny(files[0] ?? '', ['**/*.md'])).toBe(true)
+  })
+
+  it('falls back to the walk when .git exists but git cannot answer', () => {
+    mkdirSync(join(dir, '.git'), { recursive: true })
+    put('src/loose.md')
+    expect(listRepoFiles(dir)).toEqual(['src/loose.md'])
+  })
 })
 
 describe('matchesAny / filterByGlobs', () => {

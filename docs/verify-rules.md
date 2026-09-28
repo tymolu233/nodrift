@@ -12,7 +12,7 @@
 | 4 | 文件以单个换行结尾 | 纯字节检查，配 git hook（`git diff --cached --check` 天然覆盖） |
 | 5 | 文档禁状态词 | `implemented!`/`待完成`/`曾经`/`future:` 出现在 .md 即失败 |
 
-## 进阶候选（L1→L2）
+## 进阶候选
 
 - 禁止跨模块裸字符串 ID（需类型/符号信息）
 - 禁止散落默认值：`?? default` / `get(key, default)` 只允许出现在 `resolve()` 所在文件

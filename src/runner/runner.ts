@@ -57,7 +57,7 @@ export async function runGates(options: RunOptions): Promise<RunSummary> {
         })
       }
     } catch (error) {
-      run.error = error as Error
+      run.error = error instanceof Error ? error : new Error(String(error))
     }
     if (run.violations.length > 0 || run.error !== undefined) {
       failed = true

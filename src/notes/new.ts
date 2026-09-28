@@ -119,6 +119,9 @@ export function createNote(
   if (!isValidNoteDate(date)) {
     throw new Error(`createNote: date must be a real yyyy-mm-dd calendar date (got ${JSON.stringify(options.date)})`)
   }
+  if (/[\r\n]/.test(title)) {
+    throw new Error('createNote: title must be a single line (no line breaks)')
+  }
   const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
   if (slug === '') {
     throw new Error(`createNote: title ${JSON.stringify(title)} has no letters or digits to build a filename slug from`)

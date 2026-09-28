@@ -83,6 +83,13 @@ describe('findWrappedParagraphs', () => {
   it('leaves an unterminated frontmatter marker alone', () => {
     expect(findWrappedParagraphs('---\nnot frontmatter\n')).toEqual([])
   })
+
+  it('keeps line numbers exact downstream of a frontmatter block', () => {
+    const source = '---\ntitle: x\n---\n\nwrapped\ncontinues\n'
+    const hits = findWrappedParagraphs(source)
+    expect(hits).toHaveLength(1)
+    expect(hits[0]?.line).toBe(5)
+  })
 })
 
 describe('mdWrapGate.run', () => {

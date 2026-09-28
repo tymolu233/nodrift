@@ -111,7 +111,7 @@ export function verifyArchiveSeal(repoRoot: string, notesConfig: NotesConfig): (
     if (!(note.relPath.slice(rootRel.length + 1) in manifest)) {
       fail(`archived note ${note.relPath} is not sealed in manifest.json; seal it with the archive workflow`, note.relPath)
     }
-    const noteContent = readFileSync(note.absPath, 'utf8')
+    const noteContent = readFileSync(note.absPath, 'utf8').replaceAll('\r\n', '\n')
     // An empty file has zero lines; ''.split('\n') would pretend one exists.
     const noteLines = noteContent === '' ? [] : noteContent.split('\n')
     if (!ARCHIVED_LINE_RE.test(noteLines[2] ?? '')) {
@@ -165,9 +165,13 @@ export function archiveNote(repoRoot: string, relPath: string, notesConfig: Note
   if (existsSync(sourceZhAbs) && !existsSync(targetZhAbs)) renameSync(sourceZhAbs, targetZhAbs)
 
   const archivedLine = `Archived: ${new Date().toISOString().slice(0, 10)}`
-  const lines = readFileSync(targetAbs, 'utf8').split('\n')
+  const original = readFileSync(targetAbs, 'utf8')
+  // Preserve the note's own line endings: a CRLF repository stays CRLF, and
+  // the seal hashes exactly these bytes.
+  const eol = original.includes('\r\n') ? '\r\n' : '\n'
+  const lines = original.replaceAll('\r\n', '\n').split('\n')
   lines.splice(2, 0, archivedLine)
-  writeFileSync(targetAbs, lines.join('\n'))
+  writeFileSync(targetAbs, lines.join(eol))
 
   const manifestAbs = join(repoRoot, rootRel, 'archived', MANIFEST_FILE)
   const manifest: ArchiveManifest = existsSync(manifestAbs) ? parseManifest(readFileSync(manifestAbs, 'utf8')) : {}
@@ -178,6 +182,44 @@ export function archiveNote(repoRoot: string, relPath: string, notesConfig: Note
   const blob = gitAvailable(repoRoot) ? gitBlobHash(repoRoot, targetRel) : undefined
   if (blob !== undefined) seal.gitBlob = blob
   manifest[`archived/${entry.class}/${entry.fileName}`] = seal
-  writeFileSync(manifestAbs, renderManifest(manifest))
+  writeManifestAtomic(manifestAbs, manifest)
   return targetRel
+}
+
+/** Write the seal manifest atomically (tmp + rename): a crash mid-write can corrupt the data, never the committed manifest itself. */
+function writeManifestAtomic(manifestAbs: string, manifest: ArchiveManifest): void {
+  mkdirSync(dirname(manifestAbs), { recursive: true })
+  const tmp = `${manifestAbs}.tmp`
+  writeFileSync(tmp, renderManifest(manifest))
+  renameSync(tmp, manifestAbs)
+}
+
+/**
+ * Recovery path for a broken seal: rebuild manifest.json from the archived
+ * notes currently on disk. Notes missing the `Archived:` line are refused —
+ * fix their format first; the seal never forgives content, it re-acknowledges
+ * exactly what is frozen.
+ *
+ * @returns the repo-relative paths re-sealed
+ */
+export function resealArchive(repoRoot: string, notesConfig: NotesConfig): string[] {
+  const rootRel = notesRootRel(notesConfig)
+  const manifestAbs = join(repoRoot, rootRel, 'archived', MANIFEST_FILE)
+  const manifest: ArchiveManifest = {}
+  const resealed: string[] = []
+  const canGit = gitAvailable(repoRoot)
+  for (const note of walkAgentNoteTree(repoRoot, notesConfig)) {
+    if (note.lifecycle !== 'archived') continue
+    const lines = readFileSync(note.absPath, 'utf8').replaceAll('\r\n', '\n').split('\n')
+    if (!ARCHIVED_LINE_RE.test(lines[2] ?? '')) {
+      throw new Error(`resealArchive: ${note.relPath} lacks its \`Archived: YYYY-MM-DD\` line 3 — restore it before resealing`)
+    }
+    const seal: ArchiveSealEntry = { sha256: sha256File(note.absPath) }
+    const blob = canGit ? gitBlobHash(repoRoot, note.relPath) : undefined
+    if (blob !== undefined) seal.gitBlob = blob
+    manifest[note.relPath.slice(rootRel.length + 1)] = seal
+    resealed.push(note.relPath)
+  }
+  writeManifestAtomic(manifestAbs, manifest)
+  return resealed
 }
