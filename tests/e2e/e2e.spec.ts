@@ -59,6 +59,15 @@ describe('init → check lifecycle', () => {
     expect(existsSync(join(repo, '.agents', 'skills', 'pre-push-checks', 'SKILL.md'))).toBe(true)
   })
 
+  it('prints detected next steps after init', () => {
+    const result = cli(['init'], repo)
+    expect(result.code).toBe(0)
+    expect(result.out).toContain('next steps:')
+    expect(result.out).toContain('agent: trim anti-shishan.yml')
+    expect(result.out).toContain('create README.md')
+    expect(result.out).toContain('all-checks-passed')
+  })
+
   it('renders detected command placeholders from the target package.json', () => {
     writeFileSync(join(repo, 'package.json'), JSON.stringify({ name: 'demo', scripts: { test: 'vitest run' } }))
     expect(cli(['init', '--force'], repo).code).toBe(0)

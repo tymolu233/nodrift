@@ -12,6 +12,7 @@ import { CONFIG_FILE_NAME, loadConfig } from '../core/config.js'
 import type { KitConfig } from '../core/types.js'
 import { parseRules } from '../gates/ratchet.js'
 import { BUILTIN_GATES, resolveGates } from '../gates/registry.js'
+import { collectNextSteps } from '../init/next-steps.js'
 import { scaffold } from '../init/scaffold.js'
 import { archiveNote } from '../notes/archive.js'
 import { createNote } from '../notes/new.js'
@@ -80,6 +81,11 @@ function cmdInit(flags: Record<string, string | boolean>, io: CliIo): number {
   for (const rel of plan.skipped) io.stdout(`skipped   ${rel} (already exists)`)
   if (plan.configPreserved) io.stdout('note      anti-shishan.yml preserved: it is user-owned; delete it to re-scaffold')
   io.stdout(`init done in ${targetDir}`)
+  const steps = collectNextSteps(targetDir)
+  if (steps.length > 0) {
+    io.stdout('next steps:')
+    for (const step of steps) io.stdout(`  - ${step}`)
+  }
   return 0
 }
 
