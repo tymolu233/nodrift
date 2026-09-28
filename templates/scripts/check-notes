@@ -4,7 +4,7 @@
 # agreeing with its lifecycle folder, archive seals, no plan-state headings in
 # implemented notes, and mandatory Alternatives.
 # Semantic quality is out of scope here on purpose: after writing a note, walk
-# docs/notes-quality-gate.md. Where anti-shishan runs, its note-format,
+# docs/notes-quality-gate.md. Where nodrift runs, its note-format,
 # note-classification, and note-archive-seal gates supersede this script.
 set -eu
 cd "$(dirname "$0")/.."

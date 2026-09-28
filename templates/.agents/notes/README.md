@@ -15,7 +15,7 @@ This directory is the home of decision records. The rules live only here; every 
 └── <class>/         # each lifecycle splits into the closed class set below
 ```
 
-The path always reads `{lifecycle}/{class}/yyyy-mm-dd-topic.md`. Classes are a closed set (defaults; the live set is `notes.classes` in `anti-shishan.yml`):
+The path always reads `{lifecycle}/{class}/yyyy-mm-dd-topic.md`. Classes are a closed set (defaults; the live set is `notes.classes` in `nodrift.yml`):
 
 | class | covers |
 |---|---|
@@ -69,4 +69,4 @@ proposed ── ships ──▶ implemented ── superseded ──▶ archived
 
 ## Gates and commands
 
-`anti-shishan note new --class <class> --title <topic>` scaffolds a note from the templates; `anti-shishan note archive <path>` seals an implemented note; `anti-shishan check --only note-format,note-classification,note-archive-seal` checks paths and filenames, the header block, Status/folder agreement, archive seals, and the body skeleton. Without Node, `sh scripts/check-notes` covers the same structure. Semantic quality — real motivation, honest alternatives — is the human checklist in [docs/notes-quality-gate.md](../../docs/notes-quality-gate.md), and it never goes into a script.
+`nodrift note new --class <class> --title <topic>` scaffolds a note from the templates; `nodrift note archive <path>` seals an implemented note; `nodrift check --only note-format,note-classification,note-archive-seal` checks paths and filenames, the header block, Status/folder agreement, archive seals, and the body skeleton. Without Node, `sh scripts/check-notes` covers the same structure. Semantic quality — real motivation, honest alternatives — is the human checklist in [docs/notes-quality-gate.md](../../docs/notes-quality-gate.md), and it never goes into a script.

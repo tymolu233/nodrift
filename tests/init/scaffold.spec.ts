@@ -8,7 +8,7 @@ import { scaffold } from '../../src/init/scaffold.js'
 let target: string
 
 beforeEach(() => {
-  target = mkdtempSync(join(tmpdir(), 'anti-shishan-scaffold-'))
+  target = mkdtempSync(join(tmpdir(), 'nodrift-scaffold-'))
 })
 
 afterEach(() => {
@@ -60,10 +60,10 @@ describe('scaffold', () => {
   })
 
   it('never overwrites the config file even with force and reports configPreserved', () => {
-    writeFileSync(join(target, 'anti-shishan.yml'), 'user: edits')
-    const plan = scaffold({ targetDir: target, templates: { 'anti-shishan.yml': 'template: 1' }, force: true })
+    writeFileSync(join(target, 'nodrift.yml'), 'user: edits')
+    const plan = scaffold({ targetDir: target, templates: { 'nodrift.yml': 'template: 1' }, force: true })
     expect(plan.configPreserved).toBe(true)
     expect(plan.overwritten).toEqual([])
-    expect(readFileSync(join(target, 'anti-shishan.yml'), 'utf8')).toBe('user: edits')
+    expect(readFileSync(join(target, 'nodrift.yml'), 'utf8')).toBe('user: edits')
   })
 })

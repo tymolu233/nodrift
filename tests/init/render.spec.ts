@@ -7,7 +7,7 @@ import { DETECTION_TOKENS, detectRenderContext, renderContent } from '../../src/
 let dir: string
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'anti-shishan-render-'))
+  dir = mkdtempSync(join(tmpdir(), 'nodrift-render-'))
 })
 
 afterEach(() => {

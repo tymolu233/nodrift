@@ -13,12 +13,12 @@
 ## Sync obligations
 
 - [ ] README / API docs updated with the behavior
-- [ ] Lasting architecture decisions written or updated in `.agents/notes/` (use the lifecycle template; `anti-shishan check --only note-format` passes)
+- [ ] Lasting architecture decisions written or updated in `.agents/notes/` (use the lifecycle template; `nodrift check --only note-format` passes)
 - [ ] Model- or user-visible output changes are recorded
 
 ## Self-check
 
-- [ ] Narrowest local checks covering this diff have run (`anti-shishan check`, targeted tests per `.agents/skills/pre-push-checks/SKILL.md`)
+- [ ] Narrowest local checks covering this diff have run (`nodrift check`, targeted tests per `.agents/skills/pre-push-checks/SKILL.md`)
 - [ ] No unrelated files or refactors mixed in
 - [ ] No new type escapes (`as unknown` / unexplained `ignore`)
 - [ ] Breaking or migration changes are additive-only and rollback-safe

@@ -36,7 +36,7 @@ beforeAll(() => {
   // and a shell on every platform; node + the local tsc binary needs neither.
   const tscBin = join(packageRoot, 'node_modules', 'typescript', 'bin', 'tsc')
   execFileSync('node', [tscBin, '-p', 'tsconfig.json'], { cwd: packageRoot, stdio: 'ignore' })
-  repo = mkdtempSync(join(tmpdir(), 'anti-shishan-e2e-'))
+  repo = mkdtempSync(join(tmpdir(), 'nodrift-e2e-'))
 }, 120_000)
 
 afterAll(() => {
@@ -55,7 +55,7 @@ describe('init → check lifecycle', () => {
   it('scaffolds the full managed set with both entry docs, config and skills', () => {
     const result = cli(['init'], repo)
     expect(result.code).toBe(0)
-    expect(existsSync(join(repo, 'anti-shishan.yml'))).toBe(true)
+    expect(existsSync(join(repo, 'nodrift.yml'))).toBe(true)
     expect(existsSync(join(repo, 'README.md'))).toBe(true)
     expect(existsSync(join(repo, '.agents', 'skills', 'pre-push-checks', 'SKILL.md'))).toBe(true)
   })
@@ -104,16 +104,16 @@ describe('init → check lifecycle', () => {
   })
 
   it('note lifecycle: new → archive → seal verification stays green', () => {
-    expect(cli(['note', 'new', '--class', 'process', '--title', 'Adopt Anti-Shishan', '--date', '2026-09-28'], repo).code).toBe(0)
-    const proposed = join(repo, '.agents', 'notes', 'proposed', 'process', '2026-09-28-adopt-anti-shishan.md')
+    expect(cli(['note', 'new', '--class', 'process', '--title', 'Adopt nodrift', '--date', '2026-09-28'], repo).code).toBe(0)
+    const proposed = join(repo, '.agents', 'notes', 'proposed', 'process', '2026-09-28-adopt-nodrift.md')
     expect(existsSync(proposed)).toBe(true)
 
-    const implemented = join(repo, '.agents', 'notes', 'implemented', 'process', '2026-09-28-anti-shishan-v0-1.md')
+    const implemented = join(repo, '.agents', 'notes', 'implemented', 'process', '2026-09-28-nodrift-v0-1.md')
     mkdirSync(dirname(implemented), { recursive: true })
     writeFileSync(
       implemented,
       [
-        '# Agent Note: Anti-Shishan v0.1',
+        '# Agent Note: nodrift v0.1',
         'Status: implemented',
         '',
         '## Problem',
@@ -122,7 +122,7 @@ describe('init → check lifecycle', () => {
         '',
         '## Decision',
         '',
-        'Move them into executable gates run by anti-shishan check.',
+        'Move them into executable gates run by nodrift check.',
         '',
         '## Alternatives considered',
         '',
@@ -134,7 +134,7 @@ describe('init → check lifecycle', () => {
         '',
       ].join('\n'),
     )
-    expect(cli(['note', 'archive', '.agents/notes/implemented/process/2026-09-28-anti-shishan-v0-1.md'], repo).code).toBe(0)
+    expect(cli(['note', 'archive', '.agents/notes/implemented/process/2026-09-28-nodrift-v0-1.md'], repo).code).toBe(0)
     const result = cli(['check'], repo)
     expect(result.code).toBe(0)
     expect(result.out).toContain('Summary: 0/7 gates failed')

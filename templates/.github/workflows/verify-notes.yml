@@ -1,7 +1,7 @@
 # Decision-note structure check on every push and PR — the zero-dependency
-# static fallback for a repository that does NOT run anti-shishan. When the anti-shishan CLI is installed,
+# static fallback for a repository that does NOT run nodrift. When the nodrift CLI is installed,
 # the note-format / note-classification / note-archive-seal gates inside
-# `anti-shishan check` cover the same ground; keep one or the other, not both.
+# `nodrift check` cover the same ground; keep one or the other, not both.
 # Local equivalent: `sh scripts/check-notes`.
 name: verify-notes
 on:

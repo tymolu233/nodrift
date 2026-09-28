@@ -9,7 +9,7 @@ import { dirname } from 'node:path'
 
 /** One forbidden-pattern rule from `gates.ratchet.rules`. */
 export interface RatchetRule {
-  /** Short rule id, used in baselines, messages, and `anti-shishan ratchet update <id>`. */
+  /** Short rule id, used in baselines, messages, and `nodrift ratchet update <id>`. */
   id: string
   /** Regular expression source, tested per source line. */
   pattern: string

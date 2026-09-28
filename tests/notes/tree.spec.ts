@@ -33,7 +33,7 @@ const CONFIG: NotesConfig = {
 }
 
 function repo(): string {
-  return tmpRoot('anti-shishan-tree-')
+  return tmpRoot('nodrift-tree-')
 }
 
 function write(root: string, rel: string, content = 'x\n'): void {

@@ -1,5 +1,5 @@
 /**
- * `anti-shishan init` scaffolding: releases the embedded template set into a
+ * `nodrift init` scaffolding: releases the embedded template set into a
  * target repository, rendering known placeholders from detected target facts
  * (`<test command>` → `npm test` when its package.json declares the script).
  *
@@ -7,7 +7,7 @@
  * templates/, which stays the gate-policed source of truth in the repo), so
  * init never resolves a templates directory next to dist/ at runtime.
  *
- * Existing files are never touched without `--force`; `anti-shishan.yml`
+ * Existing files are never touched without `--force`; `nodrift.yml`
  * stays user-owned even under `--force` and is reported as `configPreserved`.
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'

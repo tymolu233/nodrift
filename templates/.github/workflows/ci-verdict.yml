@@ -1,4 +1,4 @@
-# Single-verdict CI template (installed by `anti-shishan init`). Branch protection requires
+# Single-verdict CI template (installed by `nodrift init`). Branch protection requires
 # exactly one status check: `all-checks-passed`.
 #
 # Two production pitfalls — do not "simplify" either away:
@@ -31,7 +31,7 @@ jobs:
       - run: npm ci
       - run: npm test
 
-  # Example blocking job: anti-shishan gates.
+  # Example blocking job: nodrift gates.
   gates:
     runs-on: ubuntu-latest
     steps:
@@ -39,7 +39,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       # Published kit:
-      - run: npx anti-shishan-kit check
+      - run: npx nodrift check
       # From a source checkout of the kit, point at the built CLI instead:
       # - run: node <path-to-kit>/dist/cli/index.js check
 

@@ -10,7 +10,7 @@ import type { GateContext } from '../../src/core/types.js'
 let root: string
 
 beforeEach(() => {
-  root = mkdtempSync(join(tmpdir(), 'anti-shishan-gate-ratchet-'))
+  root = mkdtempSync(join(tmpdir(), 'nodrift-gate-ratchet-'))
 })
 
 afterEach(() => {
@@ -81,7 +81,7 @@ describe('ratchetGate.run', () => {
     expect(result.violations).toHaveLength(2)
     expect(result.violations[0]).toMatchObject({ gate: 'ratchet', file: 'src/a.ts', line: 1 })
     expect(result.violations[0]?.message).toContain('no-unknown')
-    expect(result.violations[0]?.message).toContain('anti-shishan ratchet update no-unknown')
+    expect(result.violations[0]?.message).toContain('nodrift ratchet update no-unknown')
     expect(result.violations[1]?.line).toBe(3)
   })
 
@@ -131,7 +131,7 @@ describe('ratchetGate.run', () => {
     expect(result.violations).toHaveLength(1)
     expect(result.violations[0]).toMatchObject({ gate: 'ratchet', file: 'baselines/no-unknown.json' })
     expect(result.violations[0]?.message).toContain('vanished')
-    expect(result.violations[0]?.message).toContain('anti-shishan ratchet update no-unknown')
+    expect(result.violations[0]?.message).toContain('nodrift ratchet update no-unknown')
 
     runRatchetUpdate(root, [RULE])
     const after = await ratchetGate.run(ctx(rulesOptions()))

@@ -8,7 +8,7 @@ import type { GateContext } from '../../src/core/types.js'
 let root: string
 
 beforeEach(() => {
-  root = mkdtempSync(join(tmpdir(), 'anti-shishan-doc-budgets-'))
+  root = mkdtempSync(join(tmpdir(), 'nodrift-doc-budgets-'))
 })
 
 afterEach(() => {

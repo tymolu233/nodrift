@@ -29,7 +29,7 @@ const CONFIG: NotesConfig = {
 }
 
 function repo(): string {
-  return tmpRoot('anti-shishan-new-')
+  return tmpRoot('nodrift-new-')
 }
 
 function write(root: string, rel: string, content: string): void {
@@ -165,7 +165,7 @@ describe('built-in skeletons', () => {
   })
 
   it('rejects a multi-line title before it can forge a fake header line', () => {
-    expect(() => createNote(tmpRoot('anti-shishan-new-'), CONFIG, {
+    expect(() => createNote(tmpRoot('nodrift-new-'), CONFIG, {
       lifecycle: 'proposed',
       class: 'process',
       title: 'Real Title\nStatus: archived',

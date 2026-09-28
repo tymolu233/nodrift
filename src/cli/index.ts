@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * anti-shishan CLI: `init` (scaffold templates), `check` (run enabled gates),
+ * nodrift CLI: `init` (scaffold templates), `check` (run enabled gates),
  * `note new|archive` (decision-note lifecycle), `ratchet update|verify`
  * (forbidden-pattern baselines). Routing is dependency-injected through
  * `main(argv, io)` so tests drive every command in-process.
@@ -27,29 +27,29 @@ export interface CliIo {
   stderr: (line: string) => void
 }
 
-const HELP = `anti-shishan — governance kit for AI-assisted development
+const HELP = `nodrift — governance kit for AI-assisted development
 
 Commands:
-  anti-shishan init [--force] [--dir <path>]
+  nodrift init [--force] [--dir <path>]
       Install the full template set (constitution, gates config, notes,
       verdict CI, skills). Existing files are skipped; --force refreshes them
-      (anti-shishan.yml stays user-owned). Trim scope in anti-shishan.yml, not
+      (nodrift.yml stays user-owned). Trim scope in nodrift.yml, not
       here — gates are enabled per config, and unwanted files can be deleted.
-  anti-shishan check [--config <path>] [--only <id,id>] [--fail-fast] [--list] [--dir <path>]
+  nodrift check [--config <path>] [--only <id,id>] [--fail-fast] [--list] [--dir <path>]
       Run the gates enabled in ${CONFIG_FILE_NAME}. Exit 1 when any gate fails.
-  anti-shishan note new --class <class> --title <t> [--lifecycle proposed|rejected] [--date yyyy-mm-dd] [--dir <path>]
+  nodrift note new --class <class> --title <t> [--lifecycle proposed|rejected] [--date yyyy-mm-dd] [--dir <path>]
       Create a decision note with the right path and skeleton.
-  anti-shishan note archive <note-path> [--dir <path>]
+  nodrift note archive <note-path> [--dir <path>]
       Move an implemented note into archived/ and seal it (append-only manifest).
-  anti-shishan note reseal [--dir <path>]
+  nodrift note reseal [--dir <path>]
       Rebuild the archive seal from the archived notes on disk (recovery after
       a torn or hand-edited manifest.json); refuses notes missing their seal line.
-  anti-shishan ratchet verify [--config <path>] [--dir <path>]
+  nodrift ratchet verify [--config <path>] [--dir <path>]
       Diff forbidden-pattern occurrences against their baselines (read-only).
-  anti-shishan ratchet update <rule-id|all> [--config <path>] [--dir <path>]
+  nodrift ratchet update <rule-id|all> [--config <path>] [--dir <path>]
       Rewrite baselines from a fresh scan (registers or prunes debt).
 
-Gates have a doc line each; run \`anti-shishan check --list\` to read what each one
+Gates have a doc line each; run \`nodrift check --list\` to read what each one
 proves — and what it does not prove.`
 
 function requireDir(flags: Record<string, string | boolean>): string {
@@ -82,7 +82,7 @@ function cmdInit(flags: Record<string, string | boolean>, io: CliIo): number {
   for (const rel of plan.created) io.stdout(`created   ${rel}`)
   for (const rel of plan.overwritten) io.stdout(`rewrote   ${rel}`)
   for (const rel of plan.skipped) io.stdout(`skipped   ${rel} (already exists)`)
-  if (plan.configPreserved) io.stdout('note      anti-shishan.yml preserved: it is user-owned; delete it to re-scaffold')
+  if (plan.configPreserved) io.stdout('note      nodrift.yml preserved: it is user-owned; delete it to re-scaffold')
   io.stdout(`init done in ${targetDir}`)
   const steps = collectNextSteps(targetDir)
   if (steps.length > 0) {
@@ -181,7 +181,7 @@ function cmdRatchetVerify(flags: Record<string, string | boolean>, io: CliIo): n
     }
     if (diff.stale.length > 0) {
       bad = true
-      io.stderr(`✗ ${rule.id}: baseline holds ${diff.stale.length} vanished occurrence(s); run \`anti-shishan ratchet update ${rule.id}\``)
+      io.stderr(`✗ ${rule.id}: baseline holds ${diff.stale.length} vanished occurrence(s); run \`nodrift ratchet update ${rule.id}\``)
     }
   }
   if (!bad) io.stdout('ratchet baselines hold')
@@ -207,7 +207,7 @@ function version(): string {
 }
 
 /**
- * Run the CLI. @param argv arguments after `anti-shishan`; @returns exit code
+ * Run the CLI. @param argv arguments after `nodrift`; @returns exit code
  * (0 success, 1 failure/user error, 2 usage without command).
  */
 export async function main(argv: string[], io: CliIo): Promise<number> {

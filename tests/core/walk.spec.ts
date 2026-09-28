@@ -14,7 +14,7 @@ function put(rel: string, content = 'x'): void {
 }
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'anti-shishan-walk-'))
+  dir = mkdtempSync(join(tmpdir(), 'nodrift-walk-'))
 })
 
 afterEach(() => {

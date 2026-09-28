@@ -30,7 +30,7 @@ function entry(overrides: Partial<ParsedNotePath> = {}): ParsedNotePath {
 
 function checked(content: string, overrides: Partial<ParsedNotePath> = {}): ReturnType<typeof checkNoteFormat> {
   const parsed = entry(overrides)
-  const root = tmpRoot('anti-shishan-format-')
+  const root = tmpRoot('nodrift-format-')
   const abs = join(root, parsed.relPath)
   mkdirSync(dirname(abs), { recursive: true })
   writeFileSync(abs, content)

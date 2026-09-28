@@ -21,7 +21,7 @@ function write(rel: string, content: string): void {
 }
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'anti-shishan-cli-'))
+  dir = mkdtempSync(join(tmpdir(), 'nodrift-cli-'))
   out = []
   err = []
   io = { stdout: (line) => out.push(line), stderr: (line) => err.push(line) }
@@ -39,12 +39,12 @@ describe('meta', () => {
 
   it('--help prints help to stdout', async () => {
     expect(await run('--help')).toBe(0)
-    expect(out.join('\n')).toContain('anti-shishan check')
+    expect(out.join('\n')).toContain('nodrift check')
   })
 
   it('bare invocation prints help to stderr with exit 2', async () => {
     expect(await run()).toBe(2)
-    expect(err.join('\n')).toContain('anti-shishan check')
+    expect(err.join('\n')).toContain('nodrift check')
   })
 
   it('unknown command exits 1 with an error line', async () => {
@@ -60,7 +60,7 @@ describe('init', () => {
       'README.md',
       'CONTRIBUTING.md',
       '.github/PULL_REQUEST_TEMPLATE.md',
-      'anti-shishan.yml',
+      'nodrift.yml',
       'AGENTS.md',
       '.agents/notes/README.md',
       '.agents/skills/pre-push-checks/SKILL.md',
@@ -87,21 +87,21 @@ describe('init', () => {
     expect(err[1]).toMatch(/--dir must be a path/)
   })
 
-  it('--force rewrites managed files but preserves anti-shishan.yml with a note', async () => {
+  it('--force rewrites managed files but preserves nodrift.yml with a note', async () => {
     expect(await run('init', '--dir', dir)).toBe(0)
     write('AGENTS.md', 'LOCALLY EDITED')
-    write('anti-shishan.yml', 'user: edits\n')
+    write('nodrift.yml', 'user: edits\n')
     expect(await run('init', '--dir', dir, '--force')).toBe(0)
     expect(readFileSync(join(dir, 'AGENTS.md'), 'utf8')).not.toBe('LOCALLY EDITED')
-    expect(readFileSync(join(dir, 'anti-shishan.yml'), 'utf8')).toBe('user: edits\n')
+    expect(readFileSync(join(dir, 'nodrift.yml'), 'utf8')).toBe('user: edits\n')
     expect(out.join('\n')).toContain('rewrote   AGENTS.md')
-    expect(out.join('\n')).toContain('anti-shishan.yml preserved')
+    expect(out.join('\n')).toContain('nodrift.yml preserved')
   })
 })
 
 describe('check', () => {
   it('--list prints every gate with its doc and state', async () => {
-    write('anti-shishan.yml', 'version: 1\ngates:\n  md-wrap: {}\n  md-links: { enabled: false }\n')
+    write('nodrift.yml', 'version: 1\ngates:\n  md-wrap: {}\n  md-links: { enabled: false }\n')
     expect(await run('check', '--list', '--dir', dir)).toBe(0)
     const text = out.join('\n')
     for (const id of ['md-wrap', 'md-links', 'doc-budgets', 'note-classification', 'note-format', 'note-archive-seal', 'ratchet']) {
@@ -114,23 +114,23 @@ describe('check', () => {
 
   it('fails on wrapped markdown and fails loud on unknown gate ids', async () => {
     write('a.md', 'line one\nline two\n')
-    write('anti-shishan.yml', 'version: 1\ngates:\n  md-wrap: {}\n')
+    write('nodrift.yml', 'version: 1\ngates:\n  md-wrap: {}\n')
     expect(await run('check', '--dir', dir)).toBe(1)
     expect(err.join('\n')).toContain('md-wrap')
-    write('anti-shishan.yml', 'version: 1\ngates:\n  not-a-gate: {}\n')
+    write('nodrift.yml', 'version: 1\ngates:\n  not-a-gate: {}\n')
     expect(await run('check', '--dir', dir)).toBe(1)
     expect(err[err.length - 1]).toMatch(/unknown gate id/)
   })
 
   it('--only runs one gate and rejects disabled ones', async () => {
     write('a.md', 'fine\n')
-    write('anti-shishan.yml', 'version: 1\ngates:\n  md-wrap: {}\n  md-links: { enabled: false }\n')
+    write('nodrift.yml', 'version: 1\ngates:\n  md-wrap: {}\n  md-links: { enabled: false }\n')
     expect(await run('check', '--only', 'md-wrap', '--dir', dir)).toBe(0)
     expect(await run('check', '--only', 'md-links', '--dir', dir)).toBe(1)
     expect(err[err.length - 1]).toMatch(/not enabled/)
   })
 
-  it('fails loud when anti-shishan.yml is missing', async () => {
+  it('fails loud when nodrift.yml is missing', async () => {
     expect(await run('check', '--dir', dir)).toBe(1)
     expect(err[0]).toMatch(/config file not found/)
   })
@@ -143,7 +143,7 @@ describe('check', () => {
 
   it('--fail-fast stops after the first failing gate', async () => {
     write('a.md', 'one\ntwo\n')
-    write('anti-shishan.yml', 'version: 1\ngates:\n  md-wrap: {}\n  md-links: {}\n')
+    write('nodrift.yml', 'version: 1\ngates:\n  md-wrap: {}\n  md-links: {}\n')
     expect(await run('check', '--fail-fast', '--dir', dir)).toBe(1)
     const text = err.join('\n')
     expect(text).toContain('md-wrap')
@@ -153,7 +153,7 @@ describe('check', () => {
 
 describe('note', () => {
   beforeEach(() => {
-    write('anti-shishan.yml', 'version: 1\nnotes:\n  root: .agents/notes\ngates: {}\n')
+    write('nodrift.yml', 'version: 1\nnotes:\n  root: .agents/notes\ngates: {}\n')
   })
 
   it('new creates a proposed note with defaults', async () => {
@@ -294,7 +294,7 @@ describe('ratchet', () => {
   ].join('\n')
 
   beforeEach(() => {
-    write('anti-shishan.yml', YAML)
+    write('nodrift.yml', YAML)
     write('src/a.ts', '// TODO fix this\n')
   })
 
@@ -336,13 +336,13 @@ describe('ratchet', () => {
   })
 
   it('update on an empty rules list names `none configured`', async () => {
-    write('anti-shishan.yml', 'version: 1\ngates:\n  ratchet:\n    rules: []\n')
+    write('nodrift.yml', 'version: 1\ngates:\n  ratchet:\n    rules: []\n')
     expect(await run('ratchet', 'update', 'nope', '--dir', dir)).toBe(1)
     expect(err[err.length - 1]).toMatch(/none configured/)
   })
 
   it('missing ratchet section fails loud; missing subcommand names the known ones', async () => {
-    write('anti-shishan.yml', 'version: 1\ngates: {}\n')
+    write('nodrift.yml', 'version: 1\ngates: {}\n')
     expect(await run('ratchet', 'verify', '--dir', dir)).toBe(1)
     expect(err[err.length - 1]).toMatch(/rules is required/)
     expect(await run('ratchet', 'update', 'all', '--dir', dir)).toBe(1)

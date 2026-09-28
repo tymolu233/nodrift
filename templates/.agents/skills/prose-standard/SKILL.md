@@ -47,4 +47,4 @@ Vague words hide missing facts. Replace each with the concrete actor, value, or 
 1. Read the owning code or document before judging a passage.
 2. Classify each candidate: keep, add, trim, restore, restructure, or defer. Apply clear edits; flag genuine trade-offs instead of weakening a fact to resolve them.
 3. Docs ship in the same commit as the behavior change they describe — a doc-only follow-up PR is a bug.
-4. After learning a new rule, re-check analogous passages; re-run the narrow prose gates: `anti-shishan check --only md-wrap,md-links,doc-budgets`.
+4. After learning a new rule, re-check analogous passages; re-run the narrow prose gates: `nodrift check --only md-wrap,md-links,doc-budgets`.

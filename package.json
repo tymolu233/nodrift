@@ -1,11 +1,10 @@
 {
-  "name": "anti-shishan-kit",
+  "name": "nodrift",
   "version": "0.1.0",
   "description": "Governance kit for AI-assisted development: executable gates, decision notes, ratchet baselines, and constitution templates.",
   "type": "module",
   "bin": {
-    "anti-shishan": "dist/cli/index.js",
-    "anti-shishan-kit": "dist/cli/index.js"
+    "nodrift": "dist/cli/index.js"
   },
   "engines": {
     "node": ">=22"
@@ -17,7 +16,8 @@
     "governance",
     "code-quality",
     "cli",
-    "agent-notes"
+    "agent-notes",
+    "drift"
   ],
   "publishConfig": {
     "access": "public"
@@ -30,7 +30,7 @@
     "test": "npm run gen:templates && vitest run",
     "coverage": "npm run gen:templates && vitest run --coverage",
     "check": "npm run build && node dist/cli/index.js check",
-    "anti-shishan": "node dist/cli/index.js",
+    "nodrift": "node dist/cli/index.js",
     "prepublishOnly": "npm run coverage && npm run build"
   },
   "files": [

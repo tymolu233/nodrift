@@ -1,8 +1,8 @@
 <!--
-AGENTS.md template — installed by `anti-shishan init`, or copied
+AGENTS.md template — installed by `nodrift init`, or copied
 by hand. Replace every <placeholder>.
 
-This file carries a word budget enforced by anti-shishan's doc-budgets gate (default
+This file carries a word budget enforced by nodrift's doc-budgets gate (default
 2000 words; the template ships far below). It ratchets: lowering needs no
 ceremony once headroom reaches 5%; raising requires written justification in
 the PR description. Keep rules to 1-3 lines and link their homes; detail never
@@ -16,7 +16,7 @@ The hard rules of this repository, for humans and agents. Every rule fits in 1-3
 ## Commands
 
 - Test: `<test command>` · Build: `<build command>` · Lint: `<lint command>`
-- Pre-push: `anti-shishan check`, or the narrowest subset `anti-shishan check --only <gate>[,<gate>...]`
+- Pre-push: `nodrift check`, or the narrowest subset `nodrift check --only <gate>[,<gate>...]`
 
 ## Conventions
 

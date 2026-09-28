@@ -25,7 +25,7 @@ const CONFIG: KitConfig = {
 }
 
 function repo(): string {
-  return tmpRoot('anti-shishan-gate-cls-')
+  return tmpRoot('nodrift-gate-cls-')
 }
 
 function write(root: string, rel: string, content = 'x\n'): void {

@@ -7,11 +7,11 @@ import { DEFAULT_NOTE_CLASSES, DEFAULT_NOTES_ROOT, loadConfig } from '../../src/
 let dir: string
 
 function config(content: string): void {
-  writeFileSync(join(dir, 'anti-shishan.yml'), content)
+  writeFileSync(join(dir, 'nodrift.yml'), content)
 }
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'anti-shishan-config-'))
+  dir = mkdtempSync(join(tmpdir(), 'nodrift-config-'))
 })
 
 afterEach(() => {

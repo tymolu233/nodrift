@@ -7,7 +7,7 @@ import { collectNextSteps } from '../../src/init/next-steps.js'
 let dir: string
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'anti-shishan-next-'))
+  dir = mkdtempSync(join(tmpdir(), 'nodrift-next-'))
 })
 
 afterEach(() => {
@@ -17,8 +17,8 @@ afterEach(() => {
 describe('collectNextSteps', () => {
   it('always names config trim, first check, CI wiring, and commit steps', () => {
     const steps = collectNextSteps(dir)
-    expect(steps.some((s) => s.startsWith('agent: trim anti-shishan.yml'))).toBe(true)
-    expect(steps.some((s) => s.startsWith('agent: run `anti-shishan check`'))).toBe(true)
+    expect(steps.some((s) => s.startsWith('agent: trim nodrift.yml'))).toBe(true)
+    expect(steps.some((s) => s.startsWith('agent: run `nodrift check`'))).toBe(true)
     expect(steps.some((s) => s.startsWith('human: merge `.github/workflows/ci-verdict.yml`'))).toBe(true)
     expect(steps.some((s) => s.startsWith('human: commit the installed files'))).toBe(true)
   })
@@ -58,7 +58,7 @@ describe('collectNextSteps', () => {
   })
 
   it('meta tokens from template instructions and CLI usage docs are not holes', () => {
-    writeFileSync(join(dir, 'AGENTS.md'), 'Replace every <placeholder>. Run `anti-shishan check --only <gate>[,<gate>...]`.\n')
+    writeFileSync(join(dir, 'AGENTS.md'), 'Replace every <placeholder>. Run `nodrift check --only <gate>[,<gate>...]`.\n')
     expect(collectNextSteps(dir).some((s) => s.startsWith('agent: fill AGENTS.md'))).toBe(false)
   })
 })

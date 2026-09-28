@@ -1,5 +1,5 @@
 /**
- * anti-shishan.yml loading, defaults, and validation.
+ * nodrift.yml loading, defaults, and validation.
  *
  * Misconfiguration fails loud at load: unknown top-level keys, wrong types,
  * and unknown note classes are errors, never silent skips. Unknown gate ids
@@ -24,7 +24,7 @@ export const DEFAULT_NOTE_CLASSES = [
 export const DEFAULT_NOTES_ROOT = '.agents/notes'
 
 /** Default config file name searched at the repository root. */
-export const CONFIG_FILE_NAME = 'anti-shishan.yml'
+export const CONFIG_FILE_NAME = 'nodrift.yml'
 
 /** Raised for every config problem; `message` must say what to fix. */
 export class ConfigError extends Error {}
@@ -90,7 +90,7 @@ function parseGates(raw: unknown): Record<string, KitConfig['gates'][string]> {
 }
 
 /**
- * Load and validate anti-shishan.yml under `repoRoot`. Throws ConfigError naming the
+ * Load and validate nodrift.yml under `repoRoot`. Throws ConfigError naming the
  * offending key on any problem; a missing file is also a ConfigError (callers
  * that tolerate absence check `existsSync` first or catch).
  *
@@ -101,7 +101,7 @@ function parseGates(raw: unknown): Record<string, KitConfig['gates'][string]> {
 export function loadConfig(repoRoot: string, configPath?: string): KitConfig {
   const file = configPath ?? join(repoRoot, CONFIG_FILE_NAME)
   if (!existsSync(file)) {
-    fail(`config file not found: ${file} (run \`anti-shishan init\` to create one)`)
+    fail(`config file not found: ${file} (run \`nodrift init\` to create one)`)
   }
   let parsed: unknown
   try {
@@ -109,14 +109,14 @@ export function loadConfig(repoRoot: string, configPath?: string): KitConfig {
   } catch (error) {
     fail(`config file ${file} is not valid YAML: ${(error as Error).message}`)
   }
-  const root = record(parsed, 'anti-shishan.yml')
+  const root = record(parsed, 'nodrift.yml')
   for (const key of Object.keys(root)) {
     if (key !== 'version' && key !== 'notes' && key !== 'gates') {
-      fail(`anti-shishan.yml: ${key} is not a known top-level key (known: version, notes, gates)`)
+      fail(`nodrift.yml: ${key} is not a known top-level key (known: version, notes, gates)`)
     }
   }
   if (root['version'] !== undefined && root['version'] !== 1) {
-    fail('anti-shishan.yml: version must be 1 (this anti-shishan only understands version 1)')
+    fail('nodrift.yml: version must be 1 (this nodrift only understands version 1)')
   }
   return {
     notes: parseNotes(root['notes']),

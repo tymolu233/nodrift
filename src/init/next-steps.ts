@@ -1,6 +1,6 @@
 /**
  * Post-init next steps: compute what still needs a human or an agent after
- * `anti-shishan init` from the target repository's actual state, instead of
+ * `nodrift init` from the target repository's actual state, instead of
  * reciting a static checklist. Each step names its owner (human vs agent) so
  * the output doubles as the first work order for the session's agent.
  *
@@ -51,10 +51,10 @@ export function collectNextSteps(targetDir: string): string[] {
     }
   }
 
-  steps.push('agent: trim anti-shishan.yml — budgets should name real files, and gates you do not want get `enabled: false`')
-  steps.push('agent: run `anti-shishan check` — the findings are the remaining to-do list (first-run red is the design)')
+  steps.push('agent: trim nodrift.yml — budgets should name real files, and gates you do not want get `enabled: false`')
+  steps.push('agent: run `nodrift check` — the findings are the remaining to-do list (first-run red is the design)')
   steps.push('human: merge `.github/workflows/ci-verdict.yml` into your CI and point branch protection at the single `all-checks-passed` check (needs repo settings access)')
-  steps.push('human: commit the installed files and add anti-shishan-kit as a devDependency so teammates run the same gates')
+  steps.push('human: commit the installed files and add nodrift as a devDependency so teammates run the same gates')
 
   return steps
 }

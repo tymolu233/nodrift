@@ -87,7 +87,7 @@ export const docBudgetsGate: Gate = {
     if (entries.length === 0) {
       violations.push({
         gate: 'doc-budgets',
-        message: 'budgets is empty — the gate has nothing to enforce; add at least one "path: ceiling" entry in anti-shishan.yml or disable the gate',
+        message: 'budgets is empty — the gate has nothing to enforce; add at least one "path: ceiling" entry in nodrift.yml or disable the gate',
       })
     }
     for (const [path, ceiling] of entries) {

@@ -4,7 +4,7 @@
  * in the rule's baseline are new debt and fail, and baseline entries whose
  * occurrence vanished must be pruned so an inventory cannot silently re-admit
  * old debt elsewhere. Registering or pruning is explicit:
- * `anti-shishan ratchet update <id>`.
+ * `nodrift ratchet update <id>`.
  */
 import { isAbsolute } from 'node:path'
 import type { Gate, GateContext, Violation } from '../core/types.js'
@@ -86,14 +86,14 @@ export const ratchetGate: Gate = {
           gate: 'ratchet',
           file: hit.file,
           line: hit.line,
-          message: `hits forbidden pattern "${rule.id}": ${hit.preview} — if this is intentional legacy debt, register it with \`anti-shishan ratchet update ${rule.id}\``,
+          message: `hits forbidden pattern "${rule.id}": ${hit.preview} — if this is intentional legacy debt, register it with \`nodrift ratchet update ${rule.id}\``,
         })
       }
       if (diff.stale.length > 0) {
         violations.push({
           gate: 'ratchet',
           file: rule.baseline,
-          message: `rule "${rule.id}" baseline holds ${diff.stale.length} vanished occurrence(s) — run \`anti-shishan ratchet update ${rule.id}\` to prune the retired entries`,
+          message: `rule "${rule.id}" baseline holds ${diff.stale.length} vanished occurrence(s) — run \`nodrift ratchet update ${rule.id}\` to prune the retired entries`,
         })
       }
     }

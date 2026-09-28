@@ -1,51 +1,51 @@
-# 反屎山工具包（Anti-ShiShan Kit）
+# nodrift — 防漂移治理工具包
 
-把"AI 高强度协作却不腐"的治理机制做成任何仓库都能装的工具包：一套静态模板（手拷即用，零依赖）+ 一个 anti-shishan CLI（门禁、决策笔记、棘轮基线的可执行形态，配置集中在目标仓根的 `anti-shishan.yml`）。机制提炼自 DeepSeek Harness（3.5 个月约 19,000 提交、几乎全部 AI 协作仍不腐），去掉了该仓库特有的规模假设；署名见其 MIT 许可与本仓 `NOTICE`。
+把"AI 高强度协作却不腐"的治理机制做成任何仓库都能装的工具包：一套静态模板（手拷即用，零依赖）+ 一个 nodrift CLI（门禁、决策笔记、棘轮基线的可执行形态，配置集中在目标仓根的 `nodrift.yml`）。机制提炼自 DeepSeek Harness（3.5 个月约 19,000 提交、几乎全部 AI 协作仍不腐），去掉了该仓库特有的规模假设；署名见其 MIT 许可与本仓 `NOTICE`。
 
 ## 两种使用形态
 
 - **静态模板层**：`templates/` 即安装树，直接拷进目标仓替换 `<>` 占位即可，连 Node 都不需要（最小集 = `CONTRIBUTING.md` + PR 模板）。
-- **anti-shishan CLI 层**：`init` 安装、`check` 执行、`note`/`ratchet` 维护；模板在构建时打平嵌入 CLI 本体（tarball 只含 dist），`init` 时释放并按目标仓 `package.json` 渲染命令占位（如 `<test command>` → `` `npm test` ``）。仓库内保留 `templates/` 原件，自家 md-wrap/md-links 门禁继续监管它。
+- **nodrift CLI 层**：`init` 安装、`check` 执行、`note`/`ratchet` 维护；模板在构建时打平嵌入 CLI 本体（tarball 只含 dist），`init` 时释放并按目标仓 `package.json` 渲染命令占位（如 `<test command>` → `` `npm test` ``）。仓库内保留 `templates/` 原件，自家 md-wrap/md-links 门禁继续监管它。
 
 ## 安装与裁剪
 
-`init` 一次装全量（清单见 `templates/manifest.json`），**不分级别**——采纳梯度不在安装器里，而在装完之后：门禁想关哪个就在 `anti-shishan.yml` 里 `enabled: false`，用不到的文件直接删。静态手拷与 CLI 安装共用同一颗 `templates/` 树（手拷不需要 Node；静态 fallback 脚本与 CI 只在没有 CLI 时才顶用）。
+`init` 一次装全量（清单见 `templates/manifest.json`），**不分级别**——采纳梯度不在安装器里，而在装完之后：门禁想关哪个就在 `nodrift.yml` 里 `enabled: false`，用不到的文件直接删。静态手拷与 CLI 安装共用同一颗 `templates/` 树（手拷不需要 Node；静态 fallback 脚本与 CI 只在没有 CLI 时才顶用）。
 
 ## 快速开始
 
-新项目目录里一条命令装上（npm 包 `anti-shishan-kit`，提供 bin `anti-shishan-kit` 与短名 `anti-shishan`；命名说明：npm 上 `govkit` 已被无关项目占用）：
+新项目目录里一条命令装上（npm 包名与 bin 同名：`nodrift`）：
 
 ```sh
-npx anti-shishan-kit init        # 全量装进你的项目目录；已有文件不覆盖，anti-shishan.yml 永远归你改
+npx nodrift init        # 全量装进你的项目目录；已有文件不覆盖，nodrift.yml 永远归你改
 ```
 
 装完即得一对入口文档：**README.md 给人读**（骨架随装：项目名/简介/快速开始占位）、**AGENTS.md 给 agent 读**（宪法模板）。`init` 收尾会按仓库状态打印一份区分 agent/human 的 `next steps` 工单——两个入口里没填掉的占位是检出项（检出什么报什么），裁剪配置、首检、接 CI、提交是每次必给的收尾：
 
-之后把 CLI 装进项目依赖，日常走 npm script 或 `npx anti-shishan <command>`：
+之后把 CLI 装进项目依赖，日常走 npm script 或 `npx nodrift <command>`：
 
 ```sh
-npm install --save-dev anti-shishan-kit
-npx anti-shishan check
+npm install --save-dev nodrift
+npx nodrift check
 ```
 
-本仓开发期：`npm run build`，然后 `node dist/cli/index.js <command>`（或 `npm run anti-shishan -- <command>`）。
+本仓开发期：`npm run build`，然后 `node dist/cli/index.js <command>`（或 `npm run nodrift -- <command>`）。
 
-**第一次 `check` 见红是特性**：报告逐条点名真实缺欠——全新仓里示例棘轮规则还没有 `src/**` 可扫（语料哨兵：门禁探测范围收缩时不许装绿）。补齐后同一命令变绿；期间引入的真实违规（比如一个 `TODO`）会被 ratchet 以"新增即红、登记即封"的方式处理：`anti-shishan ratchet update <id|all>`。
+**第一次 `check` 见红是特性**：报告逐条点名真实缺欠——全新仓里示例棘轮规则还没有 `src/**` 可扫（语料哨兵：门禁探测范围收缩时不许装绿）。补齐后同一命令变绿；期间引入的真实违规（比如一个 `TODO`）会被 ratchet 以"新增即红、登记即封"的方式处理：`nodrift ratchet update <id|all>`。
 
 ## 命令一览
 
 | 命令 | 作用 |
 |---|---|
-| `anti-shishan init [--force] [--dir]` | 释放内嵌模板全量清单、按目标仓渲染命令占位，结尾打印分配的 next steps；`--force` 重刷受管文件但保留 `anti-shishan.yml` |
-| `anti-shishan check [--only <gate,...>] [--fail-fast] [--config] [--dir]` | 跑启用的门禁，任一失败退出 1；`--list` 打印每门的证明边界 |
-| `anti-shishan note new --class <c> --title <t> [--lifecycle proposed\|rejected] [--date]` | 生成正确路径与章节骨架的决策笔记 |
-| `anti-shishan note archive <note-path>` | 仅限 implemented：插 `Archived:` 行、移入 `archived/<class>/`、SHA-256 封存进 append-only manifest |
-| `anti-shishan ratchet verify` | 只读比对当前命中与基线（等价于 `check --only ratchet` 的展开版） |
-| `anti-shishan ratchet update <id\|all>` | 重扫重写基线：登记存量债、核销已偿还条目 |
+| `nodrift init [--force] [--dir]` | 释放内嵌模板全量清单、按目标仓渲染命令占位，结尾打印分配的 next steps；`--force` 重刷受管文件但保留 `nodrift.yml` |
+| `nodrift check [--only <gate,...>] [--fail-fast] [--config] [--dir]` | 跑启用的门禁，任一失败退出 1；`--list` 打印每门的证明边界 |
+| `nodrift note new --class <c> --title <t> [--lifecycle proposed\|rejected] [--date]` | 生成正确路径与章节骨架的决策笔记 |
+| `nodrift note archive <note-path>` | 仅限 implemented：插 `Archived:` 行、移入 `archived/<class>/`、SHA-256 封存进 append-only manifest |
+| `nodrift ratchet verify` | 只读比对当前命中与基线（等价于 `check --only ratchet` 的展开版） |
+| `nodrift ratchet update <id\|all>` | 重扫重写基线：登记存量债、核销已偿还条目 |
 
 ## 七门禁一览
 
-每门的"证明/不证明"同时印在 `anti-shishan check --list` 和失败报告里——绿 ≠ 对，只是绿所证明的那件事成立。
+每门的"证明/不证明"同时印在 `nodrift check --list` 和失败报告里——绿 ≠ 对，只是绿所证明的那件事成立。
 
 | 门禁 | 一句话 | 绿证明了 | 绿不证明 |
 |---|---|---|---|
@@ -59,7 +59,7 @@ npx anti-shishan check
 
 ## 四条元规则
 
-1. **规则即代码**：反复口头提醒的规则必须写成门禁进 CI；`anti-shishan.yml` 是唯一开关面。
+1. **规则即代码**：反复口头提醒的规则必须写成门禁进 CI；`nodrift.yml` 是唯一开关面。
 2. **门禁有自测**：每个门禁自带覆盖其模块的测试；每门公开声明证明/不证明，杜绝"绿 = 对"的幻觉；门禁探测语料为 0 时自身即红。
 3. **记忆会修剪**：决策进 `.agents/notes/`，归档即冻结且不再是权威；字数与年龄永远不是归档标准（纪律见 skills 的 agent-notes）。
 4. **宪法有预算**：AGENTS.md 受 doc-budgets 棘轮管辖，上调要在 PR 说明理由；细则各住其家（bug→postmortem、决策→notes、流程→docs/），宪法只放 1–3 行的规则与指针。
@@ -80,7 +80,7 @@ npx anti-shishan check
 |---|---|---|
 | 硬规则 | `templates/CONTRIBUTING.md`、`templates/.github/PULL_REQUEST_TEMPLATE.md` | 一页硬规则、PR 门禁清单（手拷即用的最小集） |
 | 入口文档 | `templates/README.md`、`templates/AGENTS.md` | 成对：人读的项目骨架、AI 读的宪法模板（约 330 词，以身作则低于默认预算） |
-| 工具配置 | `templates/anti-shishan.yml` | 门禁与笔记配置骨架（全注释） |
+| 工具配置 | `templates/nodrift.yml` | 门禁与笔记配置骨架（全注释） |
 | 决策笔记 | `templates/.agents/notes/README.md`、`templates/.agents/notes/templates/` 三模板 | 笔记机制说明与 proposed/implemented/rejected 骨架 |
 | CI | `templates/.github/workflows/ci-verdict.yml`（单判决，含两个坑注释）、`ci.yml` + `verify-notes.yml`（无 CLI 时的静态 fallback） | 三选一按是否装 CLI 使用 |
 | 工作流 | `templates/.agents/skills/` 六个 SKILL.md | pre-push-checks / code-review / agent-notes / prose-standard / find-simplifications / trim-cot-leakage |
@@ -90,4 +90,4 @@ npx anti-shishan check
 
 ## License
 
-MIT（见 `LICENSE`）。门禁与笔记机制的设计移植自 DeepSeek Harness（MIT），溯源图见 `NOTICE` 与本仓第一篇决策笔记 `.agents/notes/implemented/process/2026-09-28-anti-shishan-v0-1-design.md`。
+MIT（见 `LICENSE`）。门禁与笔记机制的设计移植自 DeepSeek Harness（MIT），溯源图见 `NOTICE` 与本仓第一篇决策笔记 `.agents/notes/implemented/process/2026-09-28-shitcode-v0-1-design.md`。

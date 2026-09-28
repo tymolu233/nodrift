@@ -13,7 +13,7 @@ const CONFIG: NotesConfig = { root: '.agents/notes', classes: ['process'] }
 let root: string
 
 beforeEach(() => {
-  root = mkdtempSync(join(tmpdir(), 'anti-shishan-crlf-'))
+  root = mkdtempSync(join(tmpdir(), 'nodrift-crlf-'))
 })
 
 afterEach(() => {

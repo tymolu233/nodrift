@@ -3,11 +3,11 @@ Status: implemented
 
 ## Problem
 
-The first public cut of `anti-shishan init` offered `--level 0|1|2` with an incremental file manifest, selling an "adoption gradient" at install time.
+The first public cut of `shitcode init` offered `--level 0|1|2` with an incremental file manifest, selling an "adoption gradient" at install time.
 
 ## Decision
 
-`init` now installs the full manifest in one shot; the `--level` flag and level plumbing in the scaffold, CLI, tests, and templates are gone. The adoption gradient lives where it always belonged: `anti-shishan.yml` lets each gate be disabled per config, and files that are not wanted can simply be deleted (init is idempotent, not a dependency).
+`init` now installs the full manifest in one shot; the `--level` flag and level plumbing in the scaffold, CLI, tests, and templates are gone. The adoption gradient lives where it always belonged: `anti-shitcode.yml` lets each gate be disabled per config, and files that are not wanted can simply be deleted (init is idempotent, not a dependency).
 
 ## Alternatives considered
 
@@ -16,4 +16,4 @@ The first public cut of `anti-shishan init` offered `--level 0|1|2` with an incr
 
 ## Consequences
 
-One template set, one manifest key (`files`), no level-crossing link class by construction; scaffold gained duplicate-entry validation instead. The README's "安装与裁剪" section carries the philosophy: trim scope with `enabled: false` and file deletion, never with an installer flag. This note supersedes the level design recorded in [`2026-09-28-anti-shishan-v0-1-design.md`](../process/2026-09-28-anti-shishan-v0-1-design.md), which cross-links back here.
+One template set, one manifest key (`files`), no level-crossing link class by construction; scaffold gained duplicate-entry validation instead. The README's "安装与裁剪" section carries the philosophy: trim scope with `enabled: false` and file deletion, never with an installer flag. This note supersedes the level design recorded in [`2026-09-28-shitcode-v0-1-design.md`](../process/2026-09-28-shitcode-v0-1-design.md), which cross-links back here.
