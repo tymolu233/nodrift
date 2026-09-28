@@ -1,6 +1,6 @@
 {
   "name": "nodrift-cli",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Governance kit for AI-assisted development: executable gates, decision notes, ratchet baselines, and constitution templates.",
   "type": "module",
   "bin": {
