@@ -1,23 +1,20 @@
 /**
- * `anti-shishan init` scaffolding: copies the full template set into a target
- * repository. There is deliberately no level system — the adoption gradient
- * lives in `anti-shishan.yml` (gates are enabled/disabled per config) and in
- * deleting files you do not want, not in the installer, and a flat inventory
- * cannot manufacture level-crossing broken links.
+ * `anti-shishan init` scaffolding: releases the embedded template set into a
+ * target repository, rendering known placeholders from detected target facts
+ * (`<test command>` → `npm test` when its package.json declares the script).
+ *
+ * Template contents ship inside the binary (generated at build time from
+ * templates/, which stays the gate-policed source of truth in the repo), so
+ * init never resolves a templates directory next to dist/ at runtime.
  *
  * Existing files are never touched without `--force`; `anti-shishan.yml`
- * stays user-owned even under `--force` (it accrues local budgets and rules)
- * and is reported as `configPreserved`.
+ * stays user-owned even under `--force` and is reported as `configPreserved`.
  */
-import { copyFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { CONFIG_FILE_NAME } from '../core/config.js'
-
-/** Manifest shape: the flat inventory of repo-relative template files init manages. */
-export interface TemplateManifest {
-  files: string[]
-}
+import { TEMPLATES } from '../generated/embedded-templates.js'
+import { detectRenderContext, renderContent } from './render.js'
 
 export interface ScaffoldPlan {
   created: string[]
@@ -28,65 +25,30 @@ export interface ScaffoldPlan {
 }
 
 export interface ScaffoldOptions {
-  templatesDir: string
   targetDir: string
   force?: boolean
-}
-
-/** The package's bundled templates directory (works from src/ and dist/). */
-export function defaultTemplatesDir(): string {
-  return fileURLToPath(new URL('../../templates/', import.meta.url))
-}
-
-function readManifest(templatesDir: string): TemplateManifest {
-  const file = join(templatesDir, 'manifest.json')
-  if (!existsSync(file)) {
-    throw new Error(`template manifest not found: ${file}`)
-  }
-  const parsed: unknown = JSON.parse(readFileSync(file, 'utf8'))
-  if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
-    throw new Error(`${file} must be a mapping with a "files" list`)
-  }
-  const manifest = parsed as Record<string, unknown>
-  if (Object.keys(manifest).some((key) => key !== 'files')) {
-    throw new Error(`${file}: only the "files" key is understood`)
-  }
-  if (!Array.isArray(manifest['files']) || manifest['files'].some((f) => typeof f !== 'string')) {
-    throw new Error(`${file}: "files" must be a list of file paths`)
-  }
-  return manifest as unknown as TemplateManifest
+  /**
+   * Template map override `{path: content}` — tests inject fixtures here;
+   * production defaults to the embedded snapshot generated from templates/.
+   */
+  templates?: Record<string, string>
 }
 
 /**
- * Resolve the manifest's template file list, verifying every listed file
- * exists (the manifest is the reviewed inventory of what init touches).
- */
-export function resolveTemplateFiles(templatesDir: string): string[] {
-  const { files } = readManifest(templatesDir)
-  for (const f of files) {
-    if (!existsSync(join(templatesDir, f))) {
-      throw new Error(`manifest lists ${f} but templates/${f} does not exist`)
-    }
-  }
-  const seen = new Set<string>()
-  for (const f of files) {
-    if (seen.has(f)) throw new Error(`manifest lists ${f} twice`)
-    seen.add(f)
-  }
-  return files
-}
-
-/**
- * Copy template files into targetDir. Returns the plan describing what
- * happened to each file (already-copied files are idempotently skipped).
+ * Release template files into targetDir and return the plan describing what
+ * happened to each file (already-released files are idempotently skipped).
+ * Rendered files compare against the rendered form, so a repo re-scaffolded
+ * after gaining a package.json reads "different" rather than "already installed".
  */
 export function scaffold(options: ScaffoldOptions): ScaffoldPlan {
+  const templates = options.templates ?? TEMPLATES
+  const context = detectRenderContext(options.targetDir)
   const plan: ScaffoldPlan = { created: [], skipped: [], overwritten: [], configPreserved: false }
-  for (const rel of resolveTemplateFiles(options.templatesDir)) {
-    const source = join(options.templatesDir, rel)
+  for (const [rel, raw] of Object.entries(templates)) {
+    const content = renderContent(raw, context)
     const target = join(options.targetDir, rel)
     if (existsSync(target)) {
-      const same = readFileSync(source, 'utf8') === readFileSync(target, 'utf8')
+      const same = readFileSync(target, 'utf8') === content
       if (same) {
         plan.skipped.push(rel)
         continue
@@ -97,7 +59,7 @@ export function scaffold(options: ScaffoldOptions): ScaffoldPlan {
         continue
       }
       if (options.force === true) {
-        copyFileSync(source, target)
+        writeFileSync(target, content)
         plan.overwritten.push(rel)
         continue
       }
@@ -105,7 +67,7 @@ export function scaffold(options: ScaffoldOptions): ScaffoldPlan {
       continue
     }
     mkdirSync(dirname(target), { recursive: true })
-    copyFileSync(source, target)
+    writeFileSync(target, content)
     plan.created.push(rel)
   }
   return plan

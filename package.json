@@ -23,18 +23,18 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc --noEmit",
+    "gen:templates": "node scripts/gen-embedded-templates.mjs",
+    "build": "npm run gen:templates && tsc -p tsconfig.json",
+    "typecheck": "npm run gen:templates && tsc --noEmit",
     "lint": "eslint .",
-    "test": "vitest run",
-    "coverage": "vitest run --coverage",
+    "test": "npm run gen:templates && vitest run",
+    "coverage": "npm run gen:templates && vitest run --coverage",
     "check": "npm run build && node dist/cli/index.js check",
     "anti-shishan": "node dist/cli/index.js",
     "prepublishOnly": "npm run coverage && npm run build"
   },
   "files": [
     "dist",
-    "templates",
     "NOTICE"
   ],
   "dependencies": {

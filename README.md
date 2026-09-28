@@ -5,7 +5,7 @@
 ## 两种使用形态
 
 - **静态模板层**：`templates/` 即安装树，直接拷进目标仓替换 `<>` 占位即可，L0 连 Node 都不需要。
-- **anti-shishan CLI 层**：`init` 安装、`check` 执行、`note`/`ratchet` 维护；模板与 CLI 共用同一颗 `templates/` 树。
+- **anti-shishan CLI 层**：`init` 安装、`check` 执行、`note`/`ratchet` 维护；模板在构建时打平嵌入 CLI 本体（tarball 只含 dist），`init` 时释放并按目标仓 `package.json` 渲染命令占位（如 `<test command>` → `` `npm test` ``）。仓库内保留 `templates/` 原件，自家 md-wrap/md-links 门禁继续监管它。
 
 ## 安装与裁剪
 
@@ -83,7 +83,7 @@ npx anti-shishan check
 | 工作流 | `templates/.agents/skills/` 六个 SKILL.md | pre-push-checks / code-review / agent-notes / prose-standard / find-simplifications / trim-cot-leakage |
 | 无 Node fallback | `templates/scripts/check` + `check-notes` | 零依赖 POSIX sh 脚本 |
 | 文档 | `templates/docs/notes-quality-gate.md`、`docs/verify-rules.md` | 笔记语义自检（永不进脚本）、规则脚本化起手清单 |
-| 清单 | `templates/manifest.json` | init 管理的受管文件全量清单（scaffold 校验与磁盘双射） |
+| 清单 | `templates/manifest.json` | 受管模板全量清单；`gen:templates` 在构建时校验其与 `templates/` 树一致并嵌入 dist |
 
 ## License
 

@@ -5,7 +5,7 @@
  * semantics; this file proves the shipped artifact and its bootstrap work.
  */
 import { execFileSync } from 'node:child_process'
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -57,6 +57,15 @@ describe('init → check lifecycle', () => {
     expect(result.code).toBe(0)
     expect(existsSync(join(repo, 'anti-shishan.yml'))).toBe(true)
     expect(existsSync(join(repo, '.agents', 'skills', 'pre-push-checks', 'SKILL.md'))).toBe(true)
+  })
+
+  it('renders detected command placeholders from the target package.json', () => {
+    writeFileSync(join(repo, 'package.json'), JSON.stringify({ name: 'demo', scripts: { test: 'vitest run' } }))
+    expect(cli(['init', '--force'], repo).code).toBe(0)
+    const agents = readFileSync(join(repo, 'AGENTS.md'), 'utf8')
+    expect(agents).toContain('Test: `npm test`')
+    expect(agents).not.toContain('<test command>')
+    expect(agents).toContain('<build command>')
   })
 
   it('first check tells the user exactly which placeholders to fill', () => {

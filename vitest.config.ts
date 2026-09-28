@@ -6,6 +6,9 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: ['src/**/*.ts'],
+      // src/generated/ holds the build-time flattened template snapshot
+      // (data, not logic); measuring it would punish regenerating templates/.
+      exclude: ['src/generated/**'],
       thresholds: {
         perFile: true,
         lines: 100,

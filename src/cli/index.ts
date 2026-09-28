@@ -12,7 +12,7 @@ import { CONFIG_FILE_NAME, loadConfig } from '../core/config.js'
 import type { KitConfig } from '../core/types.js'
 import { parseRules } from '../gates/ratchet.js'
 import { BUILTIN_GATES, resolveGates } from '../gates/registry.js'
-import { defaultTemplatesDir, scaffold } from '../init/scaffold.js'
+import { scaffold } from '../init/scaffold.js'
 import { archiveNote } from '../notes/archive.js'
 import { createNote } from '../notes/new.js'
 import { runRatchetUpdate, runRatchetVerify } from '../ratchet/update.js'
@@ -72,7 +72,6 @@ function cmdInit(flags: Record<string, string | boolean>, io: CliIo): number {
   assertOnlyFlags(flags, ['force', 'dir'], 'init')
   const targetDir = requireDir(flags)
   const plan = scaffold({
-    templatesDir: defaultTemplatesDir(),
     targetDir,
     ...(flags['force'] === true ? { force: true } : {}),
   })
