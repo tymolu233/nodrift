@@ -62,3 +62,35 @@ describe('collectNextSteps', () => {
     expect(collectNextSteps(dir).some((s) => s.startsWith('agent: fill AGENTS.md'))).toBe(false)
   })
 })
+
+describe('collectNextSteps agent selection recording', () => {
+  const recordStep = (steps: string[]): string | undefined => steps.find((s) => s.startsWith('human: record the agent selection'))
+
+  it('asks a human to record a non-empty selection missing from nodrift.yml', () => {
+    const step = recordStep(collectNextSteps(dir, ['claude', 'cursor']))
+    expect(step).toContain('agents: [claude, cursor]')
+    expect(step).toContain('nodrift.yml')
+  })
+
+  it('stays quiet for an empty or absent selection', () => {
+    expect(recordStep(collectNextSteps(dir, []))).toBeUndefined()
+    expect(recordStep(collectNextSteps(dir))).toBeUndefined()
+    expect(collectNextSteps(dir, []).length).toBe(collectNextSteps(dir).length)
+  })
+
+  it('stays quiet when nodrift.yml records the same set, order-insensitive', () => {
+    writeFileSync(join(dir, 'nodrift.yml'), 'version: 1\nagents: [cursor, claude]\n')
+    expect(recordStep(collectNextSteps(dir, ['claude', 'cursor']))).toBeUndefined()
+  })
+
+  it('asks again when the config records a different set', () => {
+    writeFileSync(join(dir, 'nodrift.yml'), 'version: 1\nagents: [gemini]\n')
+    const step = recordStep(collectNextSteps(dir, ['claude']))
+    expect(step).toContain('agents: [claude]')
+  })
+
+  it('asks when the config cannot be read, and never throws on it', () => {
+    writeFileSync(join(dir, 'nodrift.yml'), 'bogus: [unclosed\n')
+    expect(recordStep(collectNextSteps(dir, ['claude']))).toContain('agents: [claude]')
+  })
+})

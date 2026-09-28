@@ -22,6 +22,7 @@ const CONFIG: KitConfig = {
     classes: ['feature', 'bug-fix', 'simplification', 'architecture', 'process', 'testing'],
   },
   gates: {},
+  agents: [],
 }
 
 function repo(): string {
@@ -110,7 +111,7 @@ describe('noteClassificationGate', () => {
   it('honors a configured root and class set', async () => {
     const root = repo()
     write(root, 'notes/proposed/decision/2026-01-01-x.md')
-    const custom: KitConfig = { notes: { root: 'notes', classes: ['decision'] }, gates: {} }
+    const custom: KitConfig = { notes: { root: 'notes', classes: ['decision'] }, gates: {}, agents: [] }
     const result = await noteClassificationGate.run(ctx(root, custom))
     expect(result.violations).toEqual([])
     expect(result.corpus.admitted).toBe(1)

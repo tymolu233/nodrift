@@ -17,6 +17,13 @@ notes:
     - process         # tooling, gates, and workflow around the code
     - testing         # test infrastructure and strategy
 
+# Agent-ecosystem adapters `nodrift init` installs alongside the base set.
+# Closed set: claude, cursor, copilot, gemini, windsurf. `--agents a,b`
+# overrides this list for one run; record your choice here so a bare
+# `nodrift init` reproduces it. Empty means a generic AGENTS.md-ecosystem
+# install with no adapter stubs.
+agents: []
+
 gates:
   # One physical line per Markdown paragraph; hard-wrapped prose turns every
   # edit into a diff storm.

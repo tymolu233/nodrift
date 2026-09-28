@@ -4,10 +4,12 @@
  *
  * templates/ stays the editable source of truth (real .md files, policed by the
  * repo's own md-wrap/md-links/doc-budgets gates); the shipped binary embeds this
- * snapshot so init never resolves a templates directory at runtime. Fails the
- * build when the manifest drifts from the tree rather than shipping a stale map.
+ * snapshot so init never resolves a templates directory at runtime. Manifest
+ * hygiene is enforced here: "files" must equal the non-agents templates tree and
+ * "agentStubs" must equal the templates/agents/** tree — drift fails the build
+ * rather than shipping a stale or leaky map.
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -16,23 +18,50 @@ const templatesDir = join(packageRoot, 'templates')
 const manifestPath = join(templatesDir, 'manifest.json')
 const outPath = join(packageRoot, 'src', 'generated', 'embedded-templates.ts')
 
-/** @type {{ files: string[] }} */
-const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
-if (!Array.isArray(manifest.files) || manifest.files.some((f) => typeof f !== 'string')) {
-  throw new Error('templates/manifest.json: "files" must be a list of paths')
+/**
+ * Every file under templatesDir as a forward-slash relative path, manifest.json
+ * excluded (it describes the tree and is not itself a template).
+ */
+function listTree(dir, base) {
+  const out = []
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const rel = base === '' ? entry.name : `${base}/${entry.name}`
+    if (entry.isDirectory()) {
+      out.push(...listTree(join(dir, entry.name), rel))
+    } else if (rel !== 'manifest.json') {
+      out.push(rel)
+    }
+  }
+  return out
 }
-const seen = new Set()
-for (const rel of manifest.files) {
-  if (seen.has(rel)) throw new Error(`templates/manifest.json lists ${rel} twice`)
-  seen.add(rel)
-  if (!existsSync(join(templatesDir, rel))) {
-    throw new Error(`templates/manifest.json lists ${rel} but the file does not exist`)
+
+/** Sorted-set equality with a loud, actionable diff. */
+function assertSetEqual(label, listed, actual) {
+  const missing = actual.filter((rel) => !listed.includes(rel))
+  const stale = listed.filter((rel) => !actual.includes(rel) || listed.indexOf(rel) !== listed.lastIndexOf(rel))
+  if (missing.length > 0 || stale.length > 0) {
+    const parts = []
+    if (missing.length > 0) parts.push(`on disk but not listed: ${missing.join(', ')}`)
+    if (stale.length > 0) parts.push(`listed but not on disk or listed twice: ${stale.join(', ')}`)
+    throw new Error(`templates/manifest.json "${label}" has drifted from the templates tree (${parts.join('; ')})`)
   }
 }
 
+/** @type {{ files: string[], agentStubs: string[] }} */
+const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
+for (const key of ['files', 'agentStubs']) {
+  if (!Array.isArray(manifest[key]) || manifest[key].some((f) => typeof f !== 'string')) {
+    throw new Error(`templates/manifest.json: "${key}" must be a list of paths`)
+  }
+}
+
+const tree = listTree(templatesDir, '')
+assertSetEqual('files', manifest.files, tree.filter((rel) => !rel.startsWith('agents/')))
+assertSetEqual('agentStubs', manifest.agentStubs, tree.filter((rel) => rel.startsWith('agents/')))
+
 /** @type {Record<string, string>} */
 const templates = {}
-for (const rel of manifest.files) {
+for (const rel of [...manifest.files, ...manifest.agentStubs]) {
   templates[rel] = readFileSync(join(templatesDir, rel), 'utf8')
 }
 
@@ -43,9 +72,11 @@ const module = `/**
  */
 export const TEMPLATE_FILES: readonly string[] = ${JSON.stringify(manifest.files, null, 2)}
 
+export const AGENT_STUB_FILES: readonly string[] = ${JSON.stringify(manifest.agentStubs, null, 2)}
+
 export const TEMPLATES: Record<string, string> = ${JSON.stringify(templates, null, 2)}
 `
 
 mkdirSync(dirname(outPath), { recursive: true })
 writeFileSync(outPath, module)
-console.log(`embedded ${manifest.files.length} template files -> ${outPath}`)
+console.log(`embedded ${manifest.files.length} template files + ${manifest.agentStubs.length} agent stubs -> ${outPath}`)

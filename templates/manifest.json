@@ -22,5 +22,12 @@
     ".github/workflows/verify-notes.yml",
     "scripts/check",
     "scripts/check-notes"
+  ],
+  "agentStubs": [
+    "agents/claude/CLAUDE.md",
+    "agents/copilot/.github/copilot-instructions.md",
+    "agents/cursor/.cursor/rules/nodrift.mdc",
+    "agents/gemini/GEMINI.md",
+    "agents/windsurf/.windsurf/rules/nodrift.md"
   ]
 }

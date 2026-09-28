@@ -64,6 +64,20 @@ npx nodrift check        # 七门全绿，或逐条点名缺欠
 
 参数细节见 `nodrift --help`（每条命令自带用法）；每道门禁的证明边界见 `nodrift check --list`。
 
+### 适配的 agent 位置
+
+通用安装只写 `AGENTS.md` + `.agents/`；`nodrift init --agents claude,cursor`（逗号分隔的封闭集）在通用安装之上，把指路桩装进每个 agent 生态的原生项目级位置——桩只说四件事：宪法读 `AGENTS.md`、决策笔记在 `.agents/notes/`（规则见 `.agents/notes/README.md`）、skills 在哪、推送前跑 `nodrift check`。
+
+| `--agents` 取值 | 安装位置 |
+|---|---|
+| `claude` | `CLAUDE.md`（含 `@AGENTS.md` 导入行），并把六个 skills 全量镜像到 `.claude/skills/` |
+| `cursor` | `.cursor/rules/nodrift.mdc`（alwaysApply 规则） |
+| `copilot` | `.github/copilot-instructions.md` |
+| `gemini` | `GEMINI.md` |
+| `windsurf` | `.windsurf/rules/nodrift.md` |
+
+选择优先级：`--agents` > `nodrift.yml` 的 `agents:` 列表 > 空（仅 AGENTS.md 生态的通用安装）；用了非空组合就把 `agents: [...]` 记进 `nodrift.yml`，让裸 `nodrift init` 可以复现。决策笔记刻意保持 agent 中立，不随桩迁移——主流 agent 没有原生笔记约定，`.agents/notes/` 是所有 agent 的共同归宿。
+
 ## 配置
 
 门禁、笔记分类、棘轮规则集中在仓库根的 `nodrift.yml`；`init` 释放的是逐行注释的骨架（原件：[templates/nodrift.yml](templates/nodrift.yml)）。未知键加载时报错，不存在静默忽略。

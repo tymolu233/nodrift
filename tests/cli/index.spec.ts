@@ -97,6 +97,73 @@ describe('init', () => {
     expect(out.join('\n')).toContain('rewrote   AGENTS.md')
     expect(out.join('\n')).toContain('nodrift.yml preserved')
   })
+
+  it('--agents installs the selected adapters next to the base set and asks to record them', async () => {
+    expect(await run('init', '--agents', 'claude,gemini', '--dir', dir)).toBe(0)
+    for (const rel of [
+      'AGENTS.md',
+      'nodrift.yml',
+      'CLAUDE.md',
+      'GEMINI.md',
+      '.claude/skills/pre-push-checks/SKILL.md',
+      '.agents/skills/pre-push-checks/SKILL.md',
+    ]) {
+      expect(existsSync(join(dir, rel)), rel).toBe(true)
+    }
+    expect(existsSync(join(dir, '.cursor'))).toBe(false)
+    const text = out.join('\n')
+    expect(text).toContain('created   CLAUDE.md')
+    expect(text).toContain('created   .claude/skills/pre-push-checks/SKILL.md')
+    expect(text).toContain('human: record the agent selection as `agents: [claude, gemini]` in nodrift.yml')
+  })
+
+  it('rerunning init --agents skips everything once the selection is recorded', async () => {
+    expect(await run('init', '--agents', 'claude', '--dir', dir)).toBe(0)
+    write('nodrift.yml', 'version: 1\nagents: [claude]\n')
+    out = []
+    expect(await run('init', '--agents', 'claude', '--dir', dir)).toBe(0)
+    const text = out.join('\n')
+    expect(text).toContain('skipped   CLAUDE.md (already exists)')
+    expect(text).not.toContain('created   CLAUDE.md')
+    expect(text).not.toContain('record the agent selection')
+  })
+
+  it('without the flag, init reads the adapters from nodrift.yml and asks for no recording', async () => {
+    write('nodrift.yml', 'version: 1\nagents: [cursor]\n')
+    expect(await run('init', '--dir', dir)).toBe(0)
+    expect(existsSync(join(dir, '.cursor/rules/nodrift.mdc'))).toBe(true)
+    expect(existsSync(join(dir, 'CLAUDE.md'))).toBe(false)
+    expect(out.join('\n')).not.toContain('record the agent selection')
+  })
+
+  it('the flag wins over the nodrift.yml selection', async () => {
+    write('nodrift.yml', 'version: 1\nagents: [cursor]\n')
+    expect(await run('init', '--agents', 'claude', '--dir', dir)).toBe(0)
+    expect(existsSync(join(dir, 'CLAUDE.md'))).toBe(true)
+    expect(existsSync(join(dir, '.cursor'))).toBe(false)
+  })
+
+  it('an unrecordable nodrift.yml does not stop init; adapters come from the flag only', async () => {
+    write('nodrift.yml', 'bogus: [unclosed\n')
+    expect(await run('init', '--agents', 'gemini', '--dir', dir)).toBe(0)
+    expect(existsSync(join(dir, 'GEMINI.md'))).toBe(true)
+    expect(out.join('\n')).toContain('record the agent selection')
+  })
+
+  it('fails loud on unknown adapter ids and on a valueless --agents', async () => {
+    expect(await run('init', '--agents', 'claude,wat', '--dir', dir)).toBe(1)
+    expect(err[0]).toMatch(/unknown agent id\(s\) "wat" \(valid: claude, cursor, copilot, gemini, windsurf\)/)
+    expect(existsSync(join(dir, 'AGENTS.md'))).toBe(false)
+    expect(await run('init', '--agents', '--dir', dir)).toBe(1)
+    expect(err[1]).toMatch(/--agents is required/)
+  })
+
+  it('--help names --agents and the closed id set', async () => {
+    expect(await run('--help')).toBe(0)
+    const text = out.join('\n')
+    expect(text).toContain('--agents <id,id>')
+    expect(text).toContain('claude, cursor, copilot, gemini, windsurf')
+  })
 })
 
 describe('check', () => {

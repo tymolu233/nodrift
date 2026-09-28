@@ -74,4 +74,9 @@ export interface GateSection {
 export interface KitConfig {
   notes: NotesConfig
   gates: Record<string, GateSection>
+  /**
+   * Agent-adapter ids opted into for `nodrift init` (closed set from
+   * `init/agents`); the empty default means a generic AGENTS.md-only install.
+   */
+  agents: string[]
 }

@@ -5,6 +5,7 @@ import { runGates } from '../../src/runner/runner.js'
 const config: KitConfig = {
   notes: { root: '.agents/notes', classes: ['feature'] },
   gates: { inject: { custom: 'x' } },
+  agents: [],
 }
 
 function fakeGate(id: string, run: Gate['run'], minCorpus?: number): Gate {

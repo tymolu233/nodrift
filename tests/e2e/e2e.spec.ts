@@ -51,6 +51,44 @@ describe('built binary', () => {
   })
 })
 
+describe('init --agents', () => {
+  it('installs the claude adapter (stub + skills mirror) next to the main set, idempotently', () => {
+    const target = mkdtempSync(join(tmpdir(), 'nodrift-e2e-agents-'))
+    try {
+      writeFileSync(join(target, 'package.json'), JSON.stringify({ name: 'demo', scripts: { test: 'npm test' } }))
+      const first = cli(['init', '--agents', 'claude', '--dir', target], repo)
+      expect(first.code).toBe(0)
+      for (const rel of ['nodrift.yml', 'AGENTS.md', 'CLAUDE.md', '.claude/skills/pre-push-checks/SKILL.md', '.agents/skills/pre-push-checks/SKILL.md']) {
+        expect(existsSync(join(target, ...rel.split('/'))), rel).toBe(true)
+      }
+      const claude = readFileSync(join(target, 'CLAUDE.md'), 'utf8')
+      expect(claude).toContain('@AGENTS.md')
+      expect(first.out).toContain('created   CLAUDE.md')
+      expect(first.out).toContain('agents: [claude]')
+
+      const again = cli(['init', '--agents', 'claude', '--dir', target], repo)
+      expect(again.code).toBe(0)
+      expect(again.out).toContain('skipped   CLAUDE.md (already exists)')
+      expect(again.out).not.toContain('created   CLAUDE.md')
+    } finally {
+      rmSync(target, { recursive: true, force: true })
+    }
+  })
+
+  it('rejects an unknown adapter id with the valid set, installing nothing', () => {
+    const target = mkdtempSync(join(tmpdir(), 'nodrift-e2e-agents-bad-'))
+    try {
+      const result = cli(['init', '--agents', 'wat', '--dir', target], repo)
+      expect(result.code).toBe(1)
+      expect(result.out).toContain('unknown agent id')
+      expect(result.out).toContain('claude, cursor, copilot, gemini, windsurf')
+      expect(existsSync(join(target, 'AGENTS.md'))).toBe(false)
+    } finally {
+      rmSync(target, { recursive: true, force: true })
+    }
+  })
+})
+
 describe('init → check lifecycle', () => {
   it('scaffolds the full managed set with both entry docs, config and skills', () => {
     const result = cli(['init'], repo)

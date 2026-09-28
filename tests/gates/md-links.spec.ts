@@ -27,7 +27,7 @@ function ctx(options: Record<string, unknown> = {}): GateContext {
   return {
     repoRoot: root,
     options,
-    config: { notes: { root: '.agents/notes', classes: ['process'] }, gates: {} },
+    config: { notes: { root: '.agents/notes', classes: ['process'] }, gates: {}, agents: [] },
   }
 }
 

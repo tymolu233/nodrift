@@ -22,6 +22,7 @@ const CONFIG: KitConfig = {
     classes: ['feature', 'bug-fix', 'simplification', 'architecture', 'process', 'testing'],
   },
   gates: {},
+  agents: [],
 }
 
 function repo(): string {

@@ -21,6 +21,11 @@ describe('parseArgs', () => {
     expect(parsed.flags).toEqual({ level: '2', dir: '/tmp/x', force: true })
   })
 
+  it('keeps a comma-separated --agents list as one flag value (last wins on repeats)', () => {
+    const parsed = parseArgs(['init', '--agents', 'claude,cursor', '--agents=gemini'])
+    expect(parsed.flags['agents']).toBe('gemini')
+  })
+
   it('treats a value flag followed by another flag or end of input as boolean', () => {
     const parsed = parseArgs(['check', '--config', '--fail-fast', '--only'])
     expect(parsed.flags['config']).toBe(true)

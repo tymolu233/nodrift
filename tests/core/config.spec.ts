@@ -99,4 +99,24 @@ describe('loadConfig', () => {
     config('gates: {md-wrap: nope}\n')
     expect(() => loadConfig(dir)).toThrow(/gates.md-wrap must be a mapping/)
   })
+
+  it('defaults agents to an empty selection and accepts closed-set lists, de-duplicated', () => {
+    config('version: 1\n')
+    expect(loadConfig(dir).agents).toEqual([])
+    config('agents: []\n')
+    expect(loadConfig(dir).agents).toEqual([])
+    config('agents: [claude, cursor, claude]\n')
+    expect(loadConfig(dir).agents).toEqual(['claude', 'cursor'])
+  })
+
+  it('fails loud on a non-list agents entry and on ids outside the closed set', () => {
+    config('agents: claude\n')
+    expect(() => loadConfig(dir)).toThrow(/agents must be a list of agent ids/)
+    config('agents: {names: [claude]}\n')
+    expect(() => loadConfig(dir)).toThrow(/agents must be a list of agent ids/)
+    config('agents: [1]\n')
+    expect(() => loadConfig(dir)).toThrow(/agents must be a list of agent ids/)
+    config('agents: [claude, wat]\n')
+    expect(() => loadConfig(dir)).toThrow(/agents entry "wat" is not a known agent id \(valid: claude, cursor, copilot, gemini, windsurf\)/)
+  })
 })

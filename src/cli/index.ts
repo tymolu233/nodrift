@@ -5,13 +5,14 @@
  * (forbidden-pattern baselines). Routing is dependency-injected through
  * `main(argv, io)` so tests drive every command in-process.
  */
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { existsSync, readFileSync } from 'node:fs'
+import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { CONFIG_FILE_NAME, loadConfig } from '../core/config.js'
 import type { KitConfig } from '../core/types.js'
 import { parseRules } from '../gates/ratchet.js'
 import { BUILTIN_GATES, resolveGates } from '../gates/registry.js'
+import { AGENT_IDS, resolveAgentIds } from '../init/agents.js'
 import { collectNextSteps } from '../init/next-steps.js'
 import { scaffold } from '../init/scaffold.js'
 import { archiveNote, resealArchive } from '../notes/archive.js'
@@ -30,11 +31,15 @@ export interface CliIo {
 const HELP = `nodrift — governance kit for AI-assisted development
 
 Commands:
-  nodrift init [--force] [--dir <path>]
+  nodrift init [--force] [--agents <id,id>] [--dir <path>]
       Install the full template set (constitution, gates config, notes,
       verdict CI, skills). Existing files are skipped; --force refreshes them
       (nodrift.yml stays user-owned). Trim scope in nodrift.yml, not
       here — gates are enabled per config, and unwanted files can be deleted.
+      --agents <id,id> also installs agent-ecosystem stubs (valid ids:
+      ${AGENT_IDS.join(', ')}); claude additionally mirrors the skills tree
+      into .claude/skills/. The flag overrides the agents: list in
+      nodrift.yml; with neither, init installs for the AGENTS.md ecosystem.
   nodrift check [--config <path>] [--only <id,id>] [--fail-fast] [--list] [--dir <path>]
       Run the gates enabled in ${CONFIG_FILE_NAME}. Exit 1 when any gate fails.
   nodrift note new --class <class> --title <t> [--lifecycle proposed|rejected] [--date yyyy-mm-dd] [--dir <path>]
@@ -72,19 +77,37 @@ function assertOnlyFlags(flags: Record<string, string | boolean>, allowed: strin
   }
 }
 
+/**
+ * Read the agent selection recorded in the target's nodrift.yml, tolerating
+ * an invalid file: init never rewrites nodrift.yml, so a broken config is left
+ * for `nodrift check` to diagnose and init simply resolves flag-only.
+ */
+function recordedAgents(targetDir: string): string[] | undefined {
+  if (!existsSync(join(targetDir, CONFIG_FILE_NAME))) return undefined
+  try {
+    return loadConfig(targetDir).agents
+  } catch {
+    // init's contract covers scaffolding only; a broken user-owned nodrift.yml
+    // is `nodrift check`'s finding, not a reason to refuse installing templates.
+    return undefined
+  }
+}
+
 function cmdInit(flags: Record<string, string | boolean>, io: CliIo): number {
-  assertOnlyFlags(flags, ['force', 'dir'], 'init')
+  assertOnlyFlags(flags, ['force', 'dir', 'agents'], 'init')
   const targetDir = requireDir(flags)
+  const agents = resolveAgentIds(flags['agents'] === undefined ? undefined : requireFlag(flags, 'agents'), recordedAgents(targetDir))
   const plan = scaffold({
     targetDir,
     ...(flags['force'] === true ? { force: true } : {}),
+    agents,
   })
   for (const rel of plan.created) io.stdout(`created   ${rel}`)
   for (const rel of plan.overwritten) io.stdout(`rewrote   ${rel}`)
   for (const rel of plan.skipped) io.stdout(`skipped   ${rel} (already exists)`)
   if (plan.configPreserved) io.stdout('note      nodrift.yml preserved: it is user-owned; delete it to re-scaffold')
   io.stdout(`init done in ${targetDir}`)
-  const steps = collectNextSteps(targetDir)
+  const steps = collectNextSteps(targetDir, agents)
   if (steps.length > 0) {
     io.stdout('next steps:')
     for (const step of steps) io.stdout(`  - ${step}`)

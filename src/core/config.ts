@@ -8,6 +8,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { parse } from 'yaml'
+import { AGENT_IDS } from '../init/agents.js'
 import type { KitConfig, NotesConfig } from './types.js'
 
 /** Default note classes, mirroring the deepseek-harness taxonomy. */
@@ -76,6 +77,19 @@ function parseNotes(raw: unknown): NotesConfig {
   return notes
 }
 
+function parseAgents(raw: unknown): string[] {
+  if (raw === undefined) return []
+  if (!Array.isArray(raw) || raw.some((entry) => typeof entry !== 'string')) {
+    fail('nodrift.yml: agents must be a list of agent ids')
+  }
+  const ids = raw as string[]
+  const unknown = ids.filter((id) => !AGENT_IDS.includes(id))
+  if (unknown.length > 0) {
+    fail(`nodrift.yml: agents entry ${JSON.stringify(unknown[0])} is not a known agent id (valid: ${AGENT_IDS.join(', ')})`)
+  }
+  return [...new Set(ids)]
+}
+
 function parseGates(raw: unknown): Record<string, KitConfig['gates'][string]> {
   if (raw === undefined) return {}
   const value = record(raw, 'gates')
@@ -111,8 +125,8 @@ export function loadConfig(repoRoot: string, configPath?: string): KitConfig {
   }
   const root = record(parsed, 'nodrift.yml')
   for (const key of Object.keys(root)) {
-    if (key !== 'version' && key !== 'notes' && key !== 'gates') {
-      fail(`nodrift.yml: ${key} is not a known top-level key (known: version, notes, gates)`)
+    if (key !== 'version' && key !== 'notes' && key !== 'gates' && key !== 'agents') {
+      fail(`nodrift.yml: ${key} is not a known top-level key (known: version, notes, gates, agents)`)
     }
   }
   if (root['version'] !== undefined && root['version'] !== 1) {
@@ -121,5 +135,6 @@ export function loadConfig(repoRoot: string, configPath?: string): KitConfig {
   return {
     notes: parseNotes(root['notes']),
     gates: parseGates(root['gates']),
+    agents: parseAgents(root['agents']),
   }
 }

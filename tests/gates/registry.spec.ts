@@ -3,7 +3,7 @@ import type { KitConfig } from '../../src/core/types.js'
 import { BUILTIN_GATES, resolveGates } from '../../src/gates/registry.js'
 
 function config(gates: KitConfig['gates']): KitConfig {
-  return { notes: { root: '.agents/notes', classes: ['feature'] }, gates }
+  return { notes: { root: '.agents/notes', classes: ['feature'] }, gates, agents: [] }
 }
 
 describe('resolveGates', () => {
