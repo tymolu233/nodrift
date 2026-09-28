@@ -52,10 +52,11 @@ describe('built binary', () => {
 })
 
 describe('init → check lifecycle', () => {
-  it('scaffolds the full managed set with config and skills', () => {
+  it('scaffolds the full managed set with both entry docs, config and skills', () => {
     const result = cli(['init'], repo)
     expect(result.code).toBe(0)
     expect(existsSync(join(repo, 'anti-shishan.yml'))).toBe(true)
+    expect(existsSync(join(repo, 'README.md'))).toBe(true)
     expect(existsSync(join(repo, '.agents', 'skills', 'pre-push-checks', 'SKILL.md'))).toBe(true)
   })
 
@@ -63,8 +64,9 @@ describe('init → check lifecycle', () => {
     const result = cli(['init'], repo)
     expect(result.code).toBe(0)
     expect(result.out).toContain('next steps:')
-    expect(result.out).toContain('agent: trim anti-shishan.yml')
-    expect(result.out).toContain('create README.md')
+    expect(result.out).toContain('agent: fill README.md')
+    expect(result.out).toContain('<project name>')
+    expect(result.out).not.toContain('create README.md')
     expect(result.out).toContain('all-checks-passed')
   })
 
@@ -77,23 +79,21 @@ describe('init → check lifecycle', () => {
     expect(agents).toContain('<build command>')
   })
 
-  it('first check tells the user exactly which placeholders to fill', () => {
+  it('first check still fails loud on what is genuinely missing', () => {
     const result = cli(['check'], repo)
     expect(result.code).toBe(1)
-    // Fresh repo: the scaffolded README.md budget points at a file that does
-    // not exist yet, and the example ratchet rule has no src/** corpus.
-    expect(result.out).toContain('README.md')
+    // The README skeleton ships with init, so doc-budgets is green; the
+    // example ratchet rule still has no src/** corpus in a fresh repo.
     expect(result.out).toContain('ratchet')
+    expect(result.out).toContain('✓ doc-budgets')
   })
 
-  it('filling placeholders turns every gate green except genuine new debt', () => {
-    writeFileSync(join(repo, 'README.md'), '# demo\n\nA demo repository.\n')
+  it('a real violation surfaces once the corpus exists', () => {
     mkdirSync(join(repo, 'src'), { recursive: true })
     writeFileSync(join(repo, 'src', 'index.ts'), 'export const x = 1 // TODO tracked later\n')
     const result = cli(['check'], repo)
     expect(result.code).toBe(1)
     expect(result.out).toContain('hits forbidden pattern')
-    expect(result.out).not.toContain('README.md')
   })
 
   it('ratchet update registers the debt and check goes green', () => {

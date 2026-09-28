@@ -1,5 +1,6 @@
 {
   "files": [
+    "README.md",
     "CONTRIBUTING.md",
     ".github/PULL_REQUEST_TEMPLATE.md",
     "anti-shishan.yml",

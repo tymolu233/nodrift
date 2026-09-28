@@ -19,7 +19,7 @@
 npx anti-shishan-kit init        # 全量装进你的项目目录；已有文件不覆盖，anti-shishan.yml 永远归你改
 ```
 
-`init` 收尾会按仓库状态打印一份区分 agent/human 的 `next steps` 工单——README 缺失、AGENTS.md 残留占位、裁剪配置、首检、接 CI、提交——检出什么报什么，编不出就不报：
+装完即得一对入口文档：**README.md 给人读**（骨架随装：项目名/简介/快速开始占位）、**AGENTS.md 给 agent 读**（宪法模板）。`init` 收尾会按仓库状态打印一份区分 agent/human 的 `next steps` 工单——两个入口里没填掉的占位、裁剪配置、首检、接 CI、提交——检出什么报什么，编不出就不报：
 
 之后把 CLI 装进项目依赖，日常走 npm script 或 `npx anti-shishan <command>`：
 
@@ -30,7 +30,7 @@ npx anti-shishan check
 
 本仓开发期：`npm run build`，然后 `node dist/cli/index.js <command>`（或 `npm run anti-shishan -- <command>`）。
 
-**第一次 `check` 见红是特性**：报告会逐条点名还要补的占位——README 尚未存在（doc-budgets 指向失效路径）、示例棘轮规则还没有 `src/**` 可扫（语料哨兵：门禁探测范围收缩时不许装绿）。补齐占位后同一命令变绿；期间引入的真实违规（比如一个 `TODO`）会被 ratchet 以"新增即红、登记即封"的方式处理：`anti-shishan ratchet update <id|all>`。
+**第一次 `check` 见红是特性**：报告逐条点名真实缺欠——全新仓里示例棘轮规则还没有 `src/**` 可扫（语料哨兵：门禁探测范围收缩时不许装绿）。补齐后同一命令变绿；期间引入的真实违规（比如一个 `TODO`）会被 ratchet 以"新增即红、登记即封"的方式处理：`anti-shishan ratchet update <id|all>`。
 
 ## 命令一览
 
@@ -79,7 +79,8 @@ npx anti-shishan check
 | 区块 | 文件 | 用途 |
 |---|---|---|
 | 硬规则 | `templates/CONTRIBUTING.md`、`templates/.github/PULL_REQUEST_TEMPLATE.md` | 一页硬规则、PR 门禁清单（手拷即用的最小集） |
-| 工具配置 | `templates/anti-shishan.yml`、`templates/AGENTS.md` | 门禁与笔记配置骨架（全注释）、宪法模板（约 330 词，以身作则低于默认预算） |
+| 入口文档 | `templates/README.md`、`templates/AGENTS.md` | 成对：人读的项目骨架、AI 读的宪法模板（约 330 词，以身作则低于默认预算） |
+| 工具配置 | `templates/anti-shishan.yml` | 门禁与笔记配置骨架（全注释） |
 | 决策笔记 | `templates/.agents/notes/README.md`、`templates/.agents/notes/templates/` 三模板 | 笔记机制说明与 proposed/implemented/rejected 骨架 |
 | CI | `templates/.github/workflows/ci-verdict.yml`（单判决，含两个坑注释）、`ci.yml` + `verify-notes.yml`（无 CLI 时的静态 fallback） | 三选一按是否装 CLI 使用 |
 | 工作流 | `templates/.agents/skills/` 六个 SKILL.md | pre-push-checks / code-review / agent-notes / prose-standard / find-simplifications / trim-cot-leakage |

@@ -57,6 +57,7 @@ describe('init', () => {
   it('installs the full managed set and is idempotent', async () => {
     expect(await run('init', '--dir', dir)).toBe(0)
     for (const rel of [
+      'README.md',
       'CONTRIBUTING.md',
       '.github/PULL_REQUEST_TEMPLATE.md',
       'anti-shishan.yml',

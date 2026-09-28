@@ -45,8 +45,20 @@ describe('collectNextSteps', () => {
     expect(collectNextSteps(dir).some((s) => s.startsWith('agent: fill AGENTS.md'))).toBe(false)
   })
 
+  it('audits README.md placeholders independently of AGENTS.md', () => {
+    writeFileSync(join(dir, 'README.md'), '# <project name>\n\n<description>\n')
+    const steps = collectNextSteps(dir)
+    expect(steps.some((s) => s.startsWith('agent: fill README.md') && s.includes('<project name>') && s.includes('<description>'))).toBe(true)
+    expect(steps.some((s) => s.startsWith('agent: fill AGENTS.md'))).toBe(false)
+  })
+
   it('short tokens like <a> or <if x> are not treated as placeholders', () => {
     writeFileSync(join(dir, 'AGENTS.md'), 'use <x> and <if> freely\n')
+    expect(collectNextSteps(dir).some((s) => s.startsWith('agent: fill AGENTS.md'))).toBe(false)
+  })
+
+  it('meta tokens from template instructions and CLI usage docs are not holes', () => {
+    writeFileSync(join(dir, 'AGENTS.md'), 'Replace every <placeholder>. Run `anti-shishan check --only <gate>[,<gate>...]`.\n')
     expect(collectNextSteps(dir).some((s) => s.startsWith('agent: fill AGENTS.md'))).toBe(false)
   })
 })
