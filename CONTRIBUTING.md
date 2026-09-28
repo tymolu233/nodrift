@@ -14,6 +14,7 @@
 8. **文档只写当前事实**：禁止"已实现 / 曾经 / 计划中"状态词；一事实一归属，其余放链接。
 9. **决策留痕**：持久架构决策与实现同 PR 写入 `.agents/notes/`（格式与生命周期见 `.agents/notes/README.md`）。
 10. **测试验证世界**：断言走真实入口、外部重验；只 mock 贵/不确定的边界；对外可见输出固化为快照。
+11. **发布只走 tag**：`v*` tag 触发 release.yml，tag 版本必须等于 package.json `version`；npm 发布走 OIDC trusted publishing，仓库不存长期 token。
 
 ## 权威文档
 
