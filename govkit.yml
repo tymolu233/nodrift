@@ -1,0 +1,33 @@
+version: 1
+
+notes:
+  root: .agents/notes
+  classes: [feature, bug-fix, simplification, architecture, process, testing]
+
+gates:
+  md-wrap:
+    enabled: true
+    include: ['**/*.md']
+    exclude: ['.agents/notes/archived/**']
+  md-links:
+    enabled: true
+    include: ['**/*.md']
+    exclude: ['.agents/notes/archived/**']
+  doc-budgets:
+    enabled: true
+    budgets:
+      README.md: 600
+      AGENTS.md: 1200
+  note-format:
+    enabled: true
+  note-classification:
+    enabled: true
+  note-archive-seal:
+    enabled: true
+  ratchet:
+    enabled: true
+    rules:
+      - id: no-todo-without-issue
+        pattern: 'TODO(?!\(#\d+\))'
+        files: ['src/**']
+        baseline: .agents/ratchet/no-todo-without-issue.json

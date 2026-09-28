@@ -1,0 +1,96 @@
+#!/usr/bin/env sh
+# Decision-note structure self-check (POSIX shell, zero dependencies — runs in
+# any repository). Checks: paths and filenames, the header block, Status
+# agreeing with its lifecycle folder, archive seals, no plan-state headings in
+# implemented notes, and mandatory Alternatives.
+# Semantic quality is out of scope here on purpose: after writing a note, walk
+# docs/notes-quality-gate.md. Where govkit runs, its note-format,
+# note-classification, and note-archive-seal gates supersede this script.
+set -eu
+cd "$(dirname "$0")/.."
+
+ROOT=.agents/notes
+[ -d "$ROOT" ] || { echo "no $ROOT, skip"; exit 0; }
+
+fail=0
+err() { echo "FAIL: $1"; fail=1; }
+
+LIFECYCLES="proposed implemented rejected archived"
+CLASSES="feature bug-fix simplification architecture process testing"
+
+for lc in $LIFECYCLES; do
+  [ -d "$ROOT/$lc" ] || continue
+  for d in "$ROOT/$lc"/*/; do
+    [ -d "$d" ] || continue
+    c=$(basename "$d")
+    case " $CLASSES " in *" $c "*) ;; *) err "unknown class: $d";; esac
+  done
+done
+
+# Stray files: lifecycle directories must not hold .md directly (notes live in
+# {class}/ subdirectories); the root holds only README.md.
+for f in "$ROOT"/*.md; do
+  [ -f "$f" ] || continue
+  [ "$f" = "$ROOT/README.md" ] || err "stray root file (only README.md allowed): $f"
+done
+for f in "$ROOT"/*/*.md; do
+  [ -f "$f" ] || continue
+  case "$f" in "$ROOT"/templates/*) continue;; esac
+  err "misplaced file (must be {lifecycle}/{class}/file.md): $f"
+done
+for f in "$ROOT"/*/*/*/*.md; do
+  [ -f "$f" ] || continue
+  case "$f" in "$ROOT"/templates/*) continue;; esac
+  err "too deep (must be {lifecycle}/{class}/file.md): $f"
+done
+
+for f in "$ROOT"/*/*/*.md "$ROOT"/archived/*/*/*.md; do
+  [ -f "$f" ] || continue
+  case "$f" in *templates*) continue;; esac
+
+  # Path depth and filename yyyy-mm-dd-topic.md.
+  base=$(basename "$f")
+  echo "$base" | grep -Eq '^[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9]+(-[a-z0-9]+)*\.md$' \
+    || err "filename must be yyyy-mm-dd-topic.md: $f"
+
+  lc=$(echo "$f" | cut -d/ -f3)
+
+  # Header block.
+  head -1 "$f" | grep -Eq '^# Agent Note: .+' || err "line 1 must be '# Agent Note: <title>': $f"
+  status=$(grep -m1 -E '^Status:' "$f" || true)
+  [ -n "$status" ] || { err "missing Status line: $f"; continue; }
+  [ "$(grep -c -E '^Status:' "$f")" = "1" ] || err "Status line must be unique: $f"
+
+  case "$lc" in
+    proposed)   echo "$status" | grep -Eq '^Status: proposed$' || err "Status disagrees with folder: $f";;
+    implemented) echo "$status" | grep -Eq '^Status: implemented$' || err "Status disagrees with folder: $f";;
+    rejected)   echo "$status" | grep -Eq '^Status: rejected — .+' || err "Status must read 'rejected — <verdict>': $f";;
+    archived)
+      echo "$status" | grep -Eq '^Status: (implemented|rejected)' || err "archived Status invalid: $f"
+      grep -qE '^Archived: [0-9]{4}-[0-9]{2}-[0-9]{2}$' "$f" || err "archived note missing 'Archived: YYYY-MM-DD': $f";;
+  esac
+
+  # Body skeleton.
+  grep -qE '^## (Problem|问题)' "$f" || err "first section must be ## Problem: $f"
+  grep -qE '^## (Alternatives considered|备选方案|已考虑的替代方案)' "$f" \
+    || err "missing ## Alternatives considered: $f"
+
+  if [ "$lc" = "implemented" ]; then
+    if grep -qE '^## (Proposal|Plan|Migration plan|Acceptance criteria|提案|计划|迁移计划)' "$f"; then
+      err "implemented note uses plan-state headings: $f"
+    fi
+    grep -qE '^## (Decision|决策)' "$f" || err "implemented note missing ## Decision: $f"
+  fi
+done
+
+# Relative links inside active notes.
+for f in "$ROOT"/proposed/*/*.md "$ROOT"/implemented/*/*.md "$ROOT"/rejected/*/*.md; do
+  [ -f "$f" ] || continue
+  grep -oE '\]\((\.\./)+[^)#]+\)' "$f" | tr -d ']()' | while read -r link; do
+    target=$(cd "$(dirname "$f")" && readlink -f "$link" 2>/dev/null || true)
+    [ -n "$target" ] && [ -f "$target" ] || echo "WARN: broken link $f -> $link"
+  done
+done
+
+if [ "$fail" -ne 0 ]; then exit 1; fi
+echo "OK: agent notes structure valid"

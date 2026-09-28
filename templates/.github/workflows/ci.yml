@@ -1,0 +1,35 @@
+# Minimal CI red line — static fallback for a repository that does NOT run
+# govkit. From level 1 on this is superseded by ci-verdict.yml, which adds the
+# gates job and the single all-checks-passed verdict; keep one or the other,
+# not both. Replace lint/typecheck/test with the target stack's commands.
+# Principle: branch protection + green-to-merge; the full suite belongs to CI,
+# local runs stay scoped to the diff.
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      # The trio: lint / types / tests. Any failure is red.
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+
+  # Optional (level 1): changed-line coverage gate (needs diff-cover or an
+  # equivalent).
+  # coverage:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with: { fetch-depth: 0 }
+  #     - run: npm ci && npm run coverage
+  #     - run: diff-cover coverage/lcov.info --compare-branch=origin/main --fail-under=100

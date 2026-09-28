@@ -1,0 +1,70 @@
+# govkit configuration — format version 1 (the only version this govkit reads).
+# Unknown keys fail loud at load. Gate reference: the kit README's gate table,
+# or `govkit check --list` for what each gate proves and does not prove.
+version: 1
+
+notes:
+  # Root of the decision-note tree, relative to the repo root.
+  root: .agents/notes
+  # Closed set of note classes (the folder names under each lifecycle
+  # directory). The set is closed deliberately: adding a class is an explicit
+  # edit here, and note-classification rejects anything else.
+  classes:
+    - feature         # new user- or model-facing capability
+    - bug-fix         # defect fix or postmortem-driven gap closure
+    - simplification  # removal without added capability
+    - architecture    # module boundaries, package relations, runtime vocabulary
+    - process         # tooling, gates, and workflow around the code
+    - testing         # test infrastructure and strategy
+
+gates:
+  # One physical line per Markdown paragraph; hard-wrapped prose turns every
+  # edit into a diff storm.
+  md-wrap:
+    enabled: true
+    include: ['**/*.md']
+    # Frozen or vendored trees are excluded here, never by weakening the gate.
+    exclude: ['.agents/notes/archived/**', 'vendor/**']
+
+  # Relative Markdown links resolve to an existing file.
+  md-links:
+    enabled: true
+    include: ['**/*.md']
+    exclude: ['.agents/notes/archived/**', 'vendor/**']
+
+  # Word budgets for high-traffic docs. Ratchet semantics: lowering a budget
+  # needs no ceremony once the file holds >=5% headroom; raising one requires
+  # written justification in the PR description. Budgets never drift upward
+  # quietly — that is the point of the gate.
+  doc-budgets:
+    enabled: true
+    budgets:
+      AGENTS.md: 2000
+      README.md: 800
+
+  # Decision-note structure: header block, Status line agreeing with its
+  # lifecycle folder, mandatory ## Problem and ## Alternatives considered, and
+  # no plan-state headings in an implemented note.
+  note-format:
+    enabled: true
+
+  # Note folders must use the closed class set above.
+  note-classification:
+    enabled: true
+
+  # The archived/ tree is sealed: append-only, never edited after sealing.
+  note-archive-seal:
+    enabled: true
+
+  # Baseline-frozen pattern rules. Workflow: add the rule, run
+  # `govkit ratchet update <id>` to snapshot every current offender into the
+  # baseline file, then `govkit check` rejects any NEW offender while the
+  # recorded set may only shrink. Rules take effect on day one of a dirty
+  # tree; committing a smaller baseline is always welcome, a larger one never.
+  ratchet:
+    enabled: true
+    rules:
+      - id: no-todo-without-issue
+        pattern: 'TODO(?!\(#\d+\))'
+        files: ['src/**']
+        baseline: .agents/ratchet/no-todo-without-issue.json

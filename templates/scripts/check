@@ -1,0 +1,48 @@
+#!/usr/bin/env sh
+# Minimal pre-push checks: pick the check set by changed paths; never run
+# everything reflexively — the full suite belongs to CI.
+# Usage: scripts/check (wire it as the pre-push hook of lefthook/husky).
+# Role: zero-dependency static fallback. Where Node is available, prefer
+# `govkit check` for the gates; this script complements it for lint/type/test
+# selection and for repositories installed below level 1.
+set -eu
+cd "$(dirname "$0")/.."
+
+# Without a git repo, fall back to scanning all files (plain-unzip installs).
+if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  changed=$(git diff --name-only origin/main...HEAD 2>/dev/null || git diff --name-only --cached || echo "")
+  echo "$changed" | grep -q . || { echo "no changes"; exit 0; }
+else
+  echo "no git repo, running checks on all files"
+  changed=$(find . -type f \( -name '*.ts' -o -name '*.tsx' -o -name '*.js' -o -name '*.jsx' -o -name '*.py' -o -name '*.go' -o -name '*.rs' -o -name '*.java' -o -name '*.c' -o -name '*.cc' -o -name '*.cpp' -o -name '*.h' -o -name '*.md' \) 2>/dev/null || echo "")
+fi
+
+# Rule 1: any source/test change -> lint + types + tests.
+if echo "$changed" | grep -qE '\.(ts|tsx|js|jsx|py|go|rs|java|c|cc|cpp|h)$'; then
+  echo "== lint =="
+  npm run lint --silent 2>/dev/null || make lint
+  echo "== typecheck =="
+  npm run typecheck --silent 2>/dev/null || make typecheck
+  echo "== test =="
+  npm test --silent 2>/dev/null || make test
+fi
+
+# Rule 2: docs-only change -> doc checks (skip when the project has none).
+if echo "$changed" | grep -qE '\.md$'; then
+  if npm run --silent check:docs >/dev/null 2>&1; then npm run check:docs; fi
+fi
+
+# Rule 3: every executable in the repo's own verify directory (level 1+).
+if [ -d scripts/verify ]; then
+  for f in scripts/verify/*; do
+    [ -x "$f" ] && "$f"
+  done
+fi
+
+# Rule 4: decision-note structure, when the mechanism is installed and govkit
+# is not (see .agents/notes/README.md; the note-* gates supersede this).
+if [ -d .agents/notes ] && [ -f scripts/check-notes ]; then
+  sh scripts/check-notes
+fi
+
+echo "OK: minimal checks passed"

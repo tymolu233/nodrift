@@ -1,0 +1,60 @@
+# Single-verdict CI template (level 1 and later). Branch protection requires
+# exactly one status check: `all-checks-passed`.
+#
+# Two production pitfalls — do not "simplify" either away:
+#   1. `needs:` cannot reference jobs in another workflow file. Every blocking
+#      job must live in THIS file and be listed in the verdict job's `needs:`.
+#      A check that runs in a second workflow is invisible to the verdict and
+#      will not block the merge.
+#   2. The verdict job's `if: always()` and the `needs.*.result` status lines
+#      are load-bearing. Delete them and a timed-out or cancelled dependency
+#      produces a GREEN verdict, because a job that never ran reports no
+#      failure. These lines are what turn "missing signal" into red.
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  # Example blocking job: the repository's own suite. Replace with the target
+  # stack's real commands; add jobs as needed and extend `needs:` below.
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm ci
+      - run: npm test
+
+  # Example blocking job: govkit gates.
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      # Published kit:
+      - run: npx anti-shishan-kit check
+      # From a source checkout of the kit, point at the built CLI instead:
+      # - run: node <path-to-kit>/dist/cli/index.js check
+
+  # The single verdict. Add every new blocking job to `needs:`.
+  all-checks-passed:
+    needs: [test, gates]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Every blocking job must succeed
+        env:
+          BLOCKED: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped') }}
+        run: |
+          if [ "$BLOCKED" = "true" ]; then
+            echo "::error::a blocking job failed, was cancelled, or was skipped"
+            exit 1
+          fi
+          echo "all blocking jobs passed"

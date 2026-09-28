@@ -1,0 +1,29 @@
+{
+  "0": [
+    "CONTRIBUTING.md",
+    ".github/PULL_REQUEST_TEMPLATE.md"
+  ],
+  "1": [
+    "govkit.yml",
+    "AGENTS.md",
+    ".agents/notes/README.md",
+    ".agents/notes/templates/proposed.md",
+    ".agents/notes/templates/implemented.md",
+    ".agents/notes/templates/rejected.md",
+    ".github/workflows/ci-verdict.yml"
+  ],
+  "2": [
+    ".agents/skills/agent-notes/SKILL.md",
+    ".agents/skills/code-review/SKILL.md",
+    ".agents/skills/find-simplifications/SKILL.md",
+    ".agents/skills/pre-push-checks/SKILL.md",
+    ".agents/skills/prose-standard/SKILL.md",
+    ".agents/skills/trim-cot-leakage/SKILL.md",
+    ".github/workflows/ci.yml",
+    ".github/workflows/verify-notes.yml",
+    "docs/notes-quality-gate.md",
+    "docs/verify-rules.md",
+    "scripts/check",
+    "scripts/check-notes"
+  ]
+}

@@ -1,0 +1,21 @@
+# Decision-note structure check on every push and PR — the zero-dependency
+# static fallback for a repository that does NOT run govkit. From level 1 on,
+# the note-format / note-classification / note-archive-seal gates inside
+# `govkit check` cover the same ground; keep one or the other, not both.
+# Local equivalent: `sh scripts/check-notes`.
+name: verify-notes
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check note structure
+        run: sh scripts/check-notes
