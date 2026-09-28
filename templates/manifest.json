@@ -1,9 +1,7 @@
 {
-  "0": [
+  "files": [
     "CONTRIBUTING.md",
-    ".github/PULL_REQUEST_TEMPLATE.md"
-  ],
-  "1": [
+    ".github/PULL_REQUEST_TEMPLATE.md",
     "anti-shishan.yml",
     "AGENTS.md",
     ".agents/notes/README.md",
@@ -11,9 +9,8 @@
     ".agents/notes/templates/implemented.md",
     ".agents/notes/templates/rejected.md",
     ".github/workflows/ci-verdict.yml",
-    "docs/notes-quality-gate.md"
-  ],
-  "2": [
+    "docs/notes-quality-gate.md",
+    "docs/verify-rules.md",
     ".agents/skills/agent-notes/SKILL.md",
     ".agents/skills/code-review/SKILL.md",
     ".agents/skills/find-simplifications/SKILL.md",
@@ -22,7 +19,6 @@
     ".agents/skills/trim-cot-leakage/SKILL.md",
     ".github/workflows/ci.yml",
     ".github/workflows/verify-notes.yml",
-    "docs/verify-rules.md",
     "scripts/check",
     "scripts/check-notes"
   ]

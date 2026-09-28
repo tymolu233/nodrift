@@ -1,4 +1,4 @@
-# Single-verdict CI template (level 1 and later). Branch protection requires
+# Single-verdict CI template (installed by `anti-shishan init`). Branch protection requires
 # exactly one status check: `all-checks-passed`.
 #
 # Two production pitfalls — do not "simplify" either away:

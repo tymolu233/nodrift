@@ -31,69 +31,66 @@ afterEach(() => {
 })
 
 describe('resolveTemplateFiles', () => {
-  it('unions levels incrementally and de-duplicates', () => {
+  it('returns the flat manifest list in order', () => {
     putTemplate('a.md', 'a')
-    putTemplate('b.md', 'b')
-    putTemplate('c.md', 'c')
-    putManifest({ 0: ['a.md'], 1: ['a.md', 'b.md'], 2: ['c.md'] })
-    expect(resolveTemplateFiles(templates, 0)).toEqual(['a.md'])
-    expect(resolveTemplateFiles(templates, 2)).toEqual(['a.md', 'b.md', 'c.md'])
-  })
-
-  it('tolerates absent upper levels', () => {
-    putTemplate('a.md', 'a')
-    putManifest({ 0: ['a.md'] })
-    expect(resolveTemplateFiles(templates, 2)).toEqual(['a.md'])
+    putTemplate('sub/b.md', 'b')
+    putManifest({ files: ['a.md', 'sub/b.md'] })
+    expect(resolveTemplateFiles(templates)).toEqual(['a.md', 'sub/b.md'])
   })
 
   it('fails when the manifest file, its shape, or a listed file is missing', () => {
-    expect(() => resolveTemplateFiles(templates, 0)).toThrow('template manifest not found')
+    expect(() => resolveTemplateFiles(templates)).toThrow('template manifest not found')
     putManifest('not json {')
-    expect(() => resolveTemplateFiles(templates, 0)).toThrow()
+    expect(() => resolveTemplateFiles(templates)).toThrow()
     putManifest(['a.md'])
-    expect(() => resolveTemplateFiles(templates, 0)).toThrow('must be a mapping')
-    putManifest({ x: ['a.md'] })
-    expect(() => resolveTemplateFiles(templates, 0)).toThrow('each level')
-    putManifest({ 0: ['ghost.md'] })
-    expect(() => resolveTemplateFiles(templates, 0)).toThrow('templates/ghost.md does not exist')
+    expect(() => resolveTemplateFiles(templates)).toThrow('must be a mapping')
+    putManifest({ levels: [] })
+    expect(() => resolveTemplateFiles(templates)).toThrow('only the "files" key')
+    putManifest({ files: 'a.md' })
+    expect(() => resolveTemplateFiles(templates)).toThrow('"files" must be a list')
+    putManifest({ files: ['ghost.md'] })
+    expect(() => resolveTemplateFiles(templates)).toThrow('templates/ghost.md does not exist')
+    putTemplate('a.md', 'a')
+    putManifest({ files: ['a.md', 'a.md'] })
+    expect(() => resolveTemplateFiles(templates)).toThrow('lists a.md twice')
   })
 })
 
 describe('scaffold', () => {
-  it('creates nested directories and copies level files', () => {
+  it('creates nested directories and copies template files', () => {
     putTemplate('x.md', 'X')
     putTemplate('sub/y.md', 'Y')
-    putManifest({ 0: ['x.md'], 1: ['sub/y.md'] })
-    const plan = scaffold({ templatesDir: templates, targetDir: target, level: 1 })
+    putManifest({ files: ['x.md', 'sub/y.md'] })
+    const plan = scaffold({ templatesDir: templates, targetDir: target })
     expect(plan.created).toEqual(['x.md', 'sub/y.md'])
     expect(readFileSync(join(target, 'sub', 'y.md'), 'utf8')).toBe('Y')
   })
 
   it('skips identical and modified existing files without force', () => {
     putTemplate('x.md', 'X')
-    putManifest({ 0: ['x.md'] })
+    putManifest({ files: ['x.md'] })
     writeFileSync(join(target, 'x.md'), 'X')
-    expect(scaffold({ templatesDir: templates, targetDir: target, level: 0 }).skipped).toEqual(['x.md'])
+    expect(scaffold({ templatesDir: templates, targetDir: target }).skipped).toEqual(['x.md'])
     writeFileSync(join(target, 'x.md'), 'LOCAL EDITS')
-    const plan = scaffold({ templatesDir: templates, targetDir: target, level: 0 })
+    const plan = scaffold({ templatesDir: templates, targetDir: target })
     expect(plan.skipped).toEqual(['x.md'])
     expect(readFileSync(join(target, 'x.md'), 'utf8')).toBe('LOCAL EDITS')
   })
 
   it('overwrites modified files with force', () => {
     putTemplate('x.md', 'X')
-    putManifest({ 0: ['x.md'] })
+    putManifest({ files: ['x.md'] })
     writeFileSync(join(target, 'x.md'), 'LOCAL EDITS')
-    const plan = scaffold({ templatesDir: templates, targetDir: target, level: 0, force: true })
+    const plan = scaffold({ templatesDir: templates, targetDir: target, force: true })
     expect(plan.overwritten).toEqual(['x.md'])
     expect(readFileSync(join(target, 'x.md'), 'utf8')).toBe('X')
   })
 
-  it('never overwrites anti-shishan.yml even with force and reports configPreserved', () => {
+  it('never overwrites the config file even with force and reports configPreserved', () => {
     putTemplate('anti-shishan.yml', 'template: 1')
-    putManifest({ 0: ['anti-shishan.yml'] })
+    putManifest({ files: ['anti-shishan.yml'] })
     writeFileSync(join(target, 'anti-shishan.yml'), 'user: edits')
-    const plan = scaffold({ templatesDir: templates, targetDir: target, level: 0, force: true })
+    const plan = scaffold({ templatesDir: templates, targetDir: target, force: true })
     expect(plan.configPreserved).toBe(true)
     expect(plan.overwritten).toEqual([])
     expect(readFileSync(join(target, 'anti-shishan.yml'), 'utf8')).toBe('user: edits')

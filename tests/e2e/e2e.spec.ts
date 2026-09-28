@@ -52,8 +52,8 @@ describe('built binary', () => {
 })
 
 describe('init → check lifecycle', () => {
-  it('scaffolds level 2 with a template config and skills', () => {
-    const result = cli(['init', '--level', '2'], repo)
+  it('scaffolds the full managed set with config and skills', () => {
+    const result = cli(['init'], repo)
     expect(result.code).toBe(0)
     expect(existsSync(join(repo, 'anti-shishan.yml'))).toBe(true)
     expect(existsSync(join(repo, '.agents', 'skills', 'pre-push-checks', 'SKILL.md'))).toBe(true)

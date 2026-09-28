@@ -7,20 +7,16 @@
 - **静态模板层**：`templates/` 即安装树，直接拷进目标仓替换 `<>` 占位即可，L0 连 Node 都不需要。
 - **anti-shishan CLI 层**：`init` 安装、`check` 执行、`note`/`ratchet` 维护；模板与 CLI 共用同一颗 `templates/` 树。
 
-## 级别
+## 安装与裁剪
 
-- **L0 · 最小必做集**（任何项目 Day 1）：一页硬规则 `CONTRIBUTING.md` + PR 门禁清单，两个文件手拷即成。
-- **L1 · 标准集**（2+ 协作者或引入 AI agent）：`anti-shishan.yml` 配置、宪法模板 `AGENTS.md`（自带字数预算与上调申诉流程）、决策笔记机制、单判决 CI 片段。
-- **L2 · 全量集**（大仓库 / AI 高参与度）：六个工作流 skills、零依赖 fallback 脚本与静态 CI、规则脚本化与笔记语义自检文档。
-
-级别是增量的：`anti-shishan init --level N` 安装级别 0..N 的文件并集（清单见 `templates/manifest.json`）。
+`init` 一次装全量（清单见 `templates/manifest.json`），**不分级别**——采纳梯度不在安装器里，而在装完之后：门禁想关哪个就在 `anti-shishan.yml` 里 `enabled: false`，用不到的文件直接删。静态手拷与 CLI 安装共用同一颗 `templates/` 树（手拷不需要 Node；静态 fallback 脚本与 CI 只在没有 CLI 时才顶用）。
 
 ## 快速开始
 
 新项目目录里一条命令装上（npm 包 `anti-shishan-kit`，提供 bin `anti-shishan-kit` 与短名 `anti-shishan`；命名说明：npm 上 `govkit` 已被无关项目占用）：
 
 ```sh
-npx anti-shishan-kit init        # 装到你的项目目录（默认 level 1；已有文件不覆盖，anti-shishan.yml 永远归你改）
+npx anti-shishan-kit init        # 全量装进你的项目目录；已有文件不覆盖，anti-shishan.yml 永远归你改
 ```
 
 之后把 CLI 装进项目依赖，日常走 npm script 或 `npx anti-shishan <command>`：
@@ -38,7 +34,7 @@ npx anti-shishan check
 
 | 命令 | 作用 |
 |---|---|
-| `anti-shishan init --level 0\|1\|2 [--force] [--dir]` | 按 manifest 增量安装模板；`--force` 重刷受管文件但保留 `anti-shishan.yml` |
+| `anti-shishan init [--force] [--dir]` | 安装 `templates/manifest.json` 全量清单；`--force` 重刷受管文件但保留 `anti-shishan.yml` |
 | `anti-shishan check [--only <gate,...>] [--fail-fast] [--config] [--dir]` | 跑启用的门禁，任一失败退出 1；`--list` 打印每门的证明边界 |
 | `anti-shishan note new --class <c> --title <t> [--lifecycle proposed\|rejected] [--date]` | 生成正确路径与章节骨架的决策笔记 |
 | `anti-shishan note archive <note-path>` | 仅限 implemented：插 `Archived:` 行、移入 `archived/<class>/`、SHA-256 封存进 append-only manifest |
@@ -76,20 +72,18 @@ npx anti-shishan check
 
 ## 文件清单
 
-| 路径 | 用途 | 级别 |
+`init` 安装 `templates/manifest.json` 列出的全部文件，按区块分组：
+
+| 区块 | 文件 | 用途 |
 |---|---|---|
-| `templates/CONTRIBUTING.md` | 一页硬规则 | L0 |
-| `templates/.github/PULL_REQUEST_TEMPLATE.md` | PR 门禁清单 | L0 |
-| `templates/anti-shishan.yml` | 门禁与笔记配置骨架（全注释） | L1 |
-| `templates/AGENTS.md` | 宪法模板（约 330 词，以身作则低于默认预算） | L1 |
-| `templates/.agents/notes/README.md` + `templates/.agents/notes/templates/` 三模板 | 决策笔记机制 | L1 |
-| `templates/.github/workflows/ci-verdict.yml` | 单判决 CI 片段（all-checks-passed，含两个坑注释） | L1 |
-| `templates/.agents/skills/` 六个 SKILL.md | pre-push-checks / code-review / agent-notes / prose-standard / find-simplifications / trim-cot-leakage | L2 |
-| `templates/scripts/check` + `check-notes` | 零依赖 fallback 脚本（POSIX sh） | L2 |
-| `templates/docs/notes-quality-gate.md` | 笔记语义自检（永不进脚本） | L1 |
-| `templates/docs/verify-rules.md` | 规则脚本化起手清单 | L2 |
-| `templates/.github/workflows/ci.yml` + `verify-notes.yml` | 无 anti-shishan 仓的静态 CI fallback | L2 |
-| `templates/manifest.json` | init 消费的增量文件清单（键 `"0"/"1"/"2"`） | — |
+| 硬规则 | `templates/CONTRIBUTING.md`、`templates/.github/PULL_REQUEST_TEMPLATE.md` | 一页硬规则、PR 门禁清单（手拷即用的最小集） |
+| 工具配置 | `templates/anti-shishan.yml`、`templates/AGENTS.md` | 门禁与笔记配置骨架（全注释）、宪法模板（约 330 词，以身作则低于默认预算） |
+| 决策笔记 | `templates/.agents/notes/README.md`、`templates/.agents/notes/templates/` 三模板 | 笔记机制说明与 proposed/implemented/rejected 骨架 |
+| CI | `templates/.github/workflows/ci-verdict.yml`（单判决，含两个坑注释）、`ci.yml` + `verify-notes.yml`（无 CLI 时的静态 fallback） | 三选一按是否装 CLI 使用 |
+| 工作流 | `templates/.agents/skills/` 六个 SKILL.md | pre-push-checks / code-review / agent-notes / prose-standard / find-simplifications / trim-cot-leakage |
+| 无 Node fallback | `templates/scripts/check` + `check-notes` | 零依赖 POSIX sh 脚本 |
+| 文档 | `templates/docs/notes-quality-gate.md`、`docs/verify-rules.md` | 笔记语义自检（永不进脚本）、规则脚本化起手清单 |
+| 清单 | `templates/manifest.json` | init 管理的受管文件全量清单（scaffold 校验与磁盘双射） |
 
 ## License
 

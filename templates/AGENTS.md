@@ -1,5 +1,5 @@
 <!--
-AGENTS.md template — installed by `anti-shishan init --level 1` or later, or copied
+AGENTS.md template — installed by `anti-shishan init`, or copied
 by hand. Replace every <placeholder>.
 
 This file carries a word budget enforced by anti-shishan's doc-budgets gate (default

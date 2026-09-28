@@ -1,5 +1,5 @@
 # Minimal CI red line — static fallback for a repository that does NOT run
-# anti-shishan. From level 1 on this is superseded by ci-verdict.yml, which adds the
+# anti-shishan. When the anti-shishan CLI is installed this is superseded by ci-verdict.yml, which adds the
 # gates job and the single all-checks-passed verdict; keep one or the other,
 # not both. Replace lint/typecheck/test with the target stack's commands.
 # Principle: branch protection + green-to-merge; the full suite belongs to CI,
@@ -24,7 +24,7 @@ jobs:
       - run: npm run typecheck
       - run: npm test
 
-  # Optional (level 1): changed-line coverage gate (needs diff-cover or an
+  # Optional: changed-line coverage gate (needs diff-cover or an
   # equivalent).
   # coverage:
   #   runs-on: ubuntu-latest

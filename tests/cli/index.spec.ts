@@ -54,9 +54,17 @@ describe('meta', () => {
 })
 
 describe('init', () => {
-  it('installs level 1 by default and is idempotent', async () => {
+  it('installs the full managed set and is idempotent', async () => {
     expect(await run('init', '--dir', dir)).toBe(0)
-    for (const rel of ['CONTRIBUTING.md', '.github/PULL_REQUEST_TEMPLATE.md', 'anti-shishan.yml', 'AGENTS.md', '.agents/notes/README.md']) {
+    for (const rel of [
+      'CONTRIBUTING.md',
+      '.github/PULL_REQUEST_TEMPLATE.md',
+      'anti-shishan.yml',
+      'AGENTS.md',
+      '.agents/notes/README.md',
+      '.agents/skills/pre-push-checks/SKILL.md',
+      'docs/notes-quality-gate.md',
+    ]) {
       expect(existsSync(join(dir, rel)), rel).toBe(true)
     }
     const again = await run('init', '--dir', dir)
@@ -64,21 +72,15 @@ describe('init', () => {
     expect(out.join('\n')).toContain('skipped')
   })
 
-  it('--level 0 installs only the static layer', async () => {
-    expect(await run('init', '--level', '0', '--dir', dir)).toBe(0)
-    expect(existsSync(join(dir, 'CONTRIBUTING.md'))).toBe(true)
-    expect(existsSync(join(dir, 'anti-shishan.yml'))).toBe(false)
-  })
-
-  it('rejects bad levels and unknown flags', async () => {
-    expect(await run('init', '--level', '7', '--dir', dir)).toBe(1)
-    expect(err[0]).toMatch(/--level must be 0, 1, or 2/)
+  it('rejects unknown flags, including the retired --level', async () => {
+    expect(await run('init', '--level', '1', '--dir', dir)).toBe(1)
+    expect(err[0]).toMatch(/unknown flag/)
     expect(await run('init', '--wat', '--dir', dir)).toBe(1)
     expect(err[1]).toMatch(/unknown flag/)
   })
 
   it('rejects a non-string --dir', async () => {
-    expect(await run('init', '--dir', '--level', '0')).toBe(1)
+    expect(await run('init', '--dir', '--force')).toBe(1)
     expect(err[0]).toMatch(/--dir must be a path/)
     expect(await run('init', '--dir=')).toBe(1)
     expect(err[1]).toMatch(/--dir must be a path/)

@@ -29,10 +29,11 @@ export interface CliIo {
 const HELP = `anti-shishan — governance kit for AI-assisted development
 
 Commands:
-  anti-shishan init [--level 0|1|2] [--force] [--dir <path>]
-      Install template files (constitution, notes, verdict CI, skills). Level
-      defaults to 1; higher levels include lower ones. Existing files are
-      skipped; --force refreshes them (anti-shishan.yml stays user-owned).
+  anti-shishan init [--force] [--dir <path>]
+      Install the full template set (constitution, gates config, notes,
+      verdict CI, skills). Existing files are skipped; --force refreshes them
+      (anti-shishan.yml stays user-owned). Trim scope in anti-shishan.yml, not
+      here — gates are enabled per config, and unwanted files can be deleted.
   anti-shishan check [--config <path>] [--only <id,id>] [--fail-fast] [--list] [--dir <path>]
       Run the gates enabled in ${CONFIG_FILE_NAME}. Exit 1 when any gate fails.
   anti-shishan note new --class <class> --title <t> [--lifecycle proposed|rejected] [--date yyyy-mm-dd] [--dir <path>]
@@ -46,12 +47,6 @@ Commands:
 
 Gates have a doc line each; run \`anti-shishan check --list\` to read what each one
 proves — and what it does not prove.`
-
-function parseLevel(value: string | boolean | undefined): 0 | 1 | 2 {
-  if (value === undefined) return 1
-  if (value === '0' || value === '1' || value === '2') return Number(value) as 0 | 1 | 2
-  throw new Error(`--level must be 0, 1, or 2 (got ${String(value)})`)
-}
 
 function requireDir(flags: Record<string, string | boolean>): string {
   const dir = flags['dir']
@@ -74,20 +69,18 @@ function assertOnlyFlags(flags: Record<string, string | boolean>, allowed: strin
 }
 
 function cmdInit(flags: Record<string, string | boolean>, io: CliIo): number {
-  assertOnlyFlags(flags, ['level', 'force', 'dir'], 'init')
-  const level = parseLevel(flags['level'])
+  assertOnlyFlags(flags, ['force', 'dir'], 'init')
   const targetDir = requireDir(flags)
   const plan = scaffold({
     templatesDir: defaultTemplatesDir(),
     targetDir,
-    level,
     ...(flags['force'] === true ? { force: true } : {}),
   })
   for (const rel of plan.created) io.stdout(`created   ${rel}`)
   for (const rel of plan.overwritten) io.stdout(`rewrote   ${rel}`)
   for (const rel of plan.skipped) io.stdout(`skipped   ${rel} (already exists)`)
   if (plan.configPreserved) io.stdout('note      anti-shishan.yml preserved: it is user-owned; delete it to re-scaffold')
-  io.stdout(`init level ${level} done in ${targetDir}`)
+  io.stdout(`init done in ${targetDir}`)
   return 0
 }
 

@@ -4,7 +4,7 @@
 # Usage: scripts/check (wire it as the pre-push hook of lefthook/husky).
 # Role: zero-dependency static fallback. Where Node is available, prefer
 # `anti-shishan check` for the gates; this script complements it for lint/type/test
-# selection and for repositories installed below level 1.
+# selection and for repositories using the static fallback paths.
 set -eu
 cd "$(dirname "$0")/.."
 
@@ -32,7 +32,7 @@ if echo "$changed" | grep -qE '\.md$'; then
   if npm run --silent check:docs >/dev/null 2>&1; then npm run check:docs; fi
 fi
 
-# Rule 3: every executable in the repo's own verify directory (level 1+).
+# Rule 3: every executable in the repo's own verify directory (when the repo has its own scripts/verify/ tree).
 if [ -d scripts/verify ]; then
   for f in scripts/verify/*; do
     [ -x "$f" ] && "$f"
