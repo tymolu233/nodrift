@@ -1,93 +1,77 @@
-# nodrift — 防漂移治理工具包
+# nodrift
 
-把"AI 高强度协作却不腐"的治理机制做成任何仓库都能装的工具包：一套静态模板（手拷即用，零依赖）+ 一个 nodrift CLI（门禁、决策笔记、棘轮基线的可执行形态，配置集中在目标仓根的 `nodrift.yml`）。机制提炼自 DeepSeek Harness（3.5 个月约 19,000 提交、几乎全部 AI 协作仍不腐），去掉了该仓库特有的规模假设；署名见其 MIT 许可与本仓 `NOTICE`。
+[![npm](https://img.shields.io/npm/v/nodrift-cli)](https://www.npmjs.com/package/nodrift-cli) [![license](https://img.shields.io/npm/l/nodrift-cli)](LICENSE)
 
-## 两种使用形态
+**仓库的规则不该靠自觉。** nodrift 把"AI 高强度协作也不腐"的治理机制做成任何仓库几分钟就能装的工具包：七道 CI 门禁、只减不增的技术债棘轮、有生命周期的决策笔记、带字数预算的 AGENTS.md 宪法。静态模板手拷即用，CLI 负责安装与执行。
 
-- **静态模板层**：`templates/` 即安装树，直接拷进目标仓替换 `<>` 占位即可，连 Node 都不需要（最小集 = `CONTRIBUTING.md` + PR 模板）。
-- **nodrift CLI 层**：`init` 安装、`check` 执行、`note`/`ratchet` 维护；模板在构建时打平嵌入 CLI 本体（tarball 只含 dist），`init` 时释放并按目标仓 `package.json` 渲染命令占位（如 `<test command>` → `` `npm test` ``）。仓库内保留 `templates/` 原件，自家 md-wrap/md-links 门禁继续监管它。
+机制提炼自 DeepSeek Harness（3.5 个月 19,000+ 提交、几乎全部 AI 协作仍未腐化），剥掉了该仓库特有的规模假设；溯源见 [NOTICE](NOTICE)。
 
-## 安装与裁剪
+## 为什么
 
-`init` 一次装全量（清单见 `templates/manifest.json`），**不分级别**——采纳梯度不在安装器里，而在装完之后：门禁想关哪个就在 `nodrift.yml` 里 `enabled: false`，用不到的文件直接删。静态手拷与 CLI 安装共用同一颗 `templates/` 树（手拷不需要 Node；静态 fallback 脚本与 CI 只在没有 CLI 时才顶用）。
+仓库的腐坏从来不是一次写坏，而是一天天漂移：文档悄悄过时，口头规范被新代码违反，技术债只进不出。nodrift 把漂移变成 CI 红灯：
 
-## 快速开始
+- 规则是 `nodrift check` 里可执行的门禁，不是 wiki 上的劝告；
+- 存量债登记进棘轮基线，新增即红、只减不增；
+- 决策写进 `.agents/notes/` 而不是蒸发在聊天记录里，归档即冻结；
+- AGENTS.md 本身受字数预算管辖，一条规则 1–3 行，细则各归其家。
 
-新项目目录里一条命令装上（npm 包名 `nodrift-cli`，装完后命令是 `nodrift`）：
+## 30 秒上手
 
 ```sh
-npx nodrift-cli init        # 全量装进你的项目目录；已有文件不覆盖，nodrift.yml 永远归你改
+npx nodrift-cli init
 ```
 
-装完即得一对入口文档：**README.md 给人读**（骨架随装：项目名/简介/快速开始占位）、**AGENTS.md 给 agent 读**（宪法模板）。`init` 收尾会按仓库状态打印一份区分 agent/human 的 `next steps` 工单——两个入口里没填掉的占位是检出项（检出什么报什么），裁剪配置、首检、接 CI、提交是每次必给的收尾：
-
-之后把 CLI 装进项目依赖，日常走 npm script 或 `npx nodrift <command>`：
+`init` 把模板全量释放到当前目录（已有文件不覆盖），按你的 `package.json` 渲染命令占位，收尾打印一份区分 human/agent 的 next steps 工单。之后把 CLI 装进项目依赖，日常一条命令：
 
 ```sh
 npm install --save-dev nodrift-cli
-npx nodrift check
+npx nodrift check        # 七门全绿，或逐条点名缺欠
 ```
 
-本仓开发期：`npm run build`，然后 `node dist/cli/index.js <command>`（或 `npm run nodrift -- <command>`）。
+第一次 `check` 见红是特性，报告点名的是真实缺欠——空仓库里示例棘轮规则连语料都不存在，而探不到语料的门禁自己就是红的，不许装绿。补齐后同一命令变绿。
 
-**第一次 `check` 见红是特性**：报告逐条点名真实缺欠——全新仓里示例棘轮规则还没有 `src/**` 可扫（语料哨兵：门禁探测范围收缩时不许装绿）。补齐后同一命令变绿；期间引入的真实违规（比如一个 `TODO`）会被 ratchet 以"新增即红、登记即封"的方式处理：`nodrift ratchet update <id|all>`。
+## 装完得到什么
 
-## 命令一览
+- **入口文档对**：README 骨架（人读）+ AGENTS.md 宪法模板（AI 读，自带字数预算）；
+- **[nodrift.yml](templates/nodrift.yml)**：唯一开关面，不合身的门禁 `enabled: false`，用不到的文件直接删；
+- **CI 三选一**：单判决 verdict workflow，或没有 CLI 时的静态 fallback；
+- **六个 agent skills**（pre-push-checks / code-review / agent-notes / prose-standard / find-simplifications / trim-cot-leakage）与零依赖 sh 检查脚本。
+
+全量清单见 [templates/manifest.json](templates/manifest.json)。安装不分级：裁剪在装完后做，不在安装器里做。没有 Node 的仓库手拷同一棵 `templates/` 树即可，最小集是 CONTRIBUTING.md + PR 模板。
+
+## 七道门禁
+
+每门公开声明"绿证明了什么、不证明什么"（完整版：`nodrift check --list`）——绿不等于对，只等于绿承诺的那件事成立。
+
+| 门禁 | 管什么 | 绿证明 | 不证明 |
+|---|---|---|---|
+| md-wrap | Markdown 一段一物理行 | 段落未被硬换行 | 段落言之有物 |
+| md-links | 相对链接与锚点 | 目标文件与锚点真实存在 | 链接去对了"家"、外链可达 |
+| doc-budgets | 字数预算棘轮 | 未超预算且留有下调空间 | 内容值得这些字 |
+| note-format | 笔记头块与章节骨架 | 结构合法、备选方案在场 | 动机真实、备选诚实 |
+| note-classification | 生命周期/类/日期/文件名 | 目录归属在封闭集内 | 类选得恰当 |
+| note-archive-seal | 归档 append-only | 封存件未被改、manifest 完好 | "该归档"这判断本身 |
+| ratchet | 禁止模式基线 | 无新增命中、基线无失效条目 | 存量在减少、模式合理 |
+
+## 命令
 
 | 命令 | 作用 |
 |---|---|
-| `nodrift init [--force] [--dir]` | 释放内嵌模板全量清单、按目标仓渲染命令占位，结尾打印分配的 next steps；`--force` 重刷受管文件但保留 `nodrift.yml` |
-| `nodrift check [--only <gate,...>] [--fail-fast] [--config] [--dir]` | 跑启用的门禁，任一失败退出 1；`--list` 打印每门的证明边界 |
-| `nodrift note new --class <c> --title <t> [--lifecycle proposed\|rejected] [--date]` | 生成正确路径与章节骨架的决策笔记 |
-| `nodrift note archive <note-path>` | 仅限 implemented：插 `Archived:` 行、移入 `archived/<class>/`、SHA-256 封存进 append-only manifest |
-| `nodrift ratchet verify` | 只读比对当前命中与基线（等价于 `check --only ratchet` 的展开版） |
-| `nodrift ratchet update <id\|all>` | 重扫重写基线：登记存量债、核销已偿还条目 |
+| `nodrift init [--force] [--dir]` | 释放模板；`--force` 重刷受管文件，`nodrift.yml` 永远归你 |
+| `nodrift check [--only] [--fail-fast] [--list]` | 跑配置里启用的门禁，任一失败退出 1 |
+| `nodrift note new / archive / reseal` | 决策笔记：建树、SHA-256 封存归档、封印修复 |
+| `nodrift ratchet verify / update` | 只读比对基线；登记存量债、核销已偿还条目 |
 
-## 七门禁一览
+参数细节见 `nodrift --help`（每条命令自带用法）；每道门禁的证明边界见 `nodrift check --list`。
 
-每门的"证明/不证明"同时印在 `nodrift check --list` 和失败报告里——绿 ≠ 对，只是绿所证明的那件事成立。
+## 配置
 
-| 门禁 | 一句话 | 绿证明了 | 绿不证明 |
-|---|---|---|---|
-| md-wrap | Markdown 一段一物理行 | 段落未被硬换行 | 段落言之有物 |
-| md-links | 相对链接与锚点可解析 | 链接目标、标题锚点存在 | 指向的是正确的"家"、外链可达 |
-| doc-budgets | 字数预算棘轮 | 受管文件未超预算且留 ≥5% 下调空间 | 内容值得这些字 |
-| note-format | 头块/骨架/Status 与目录一致、Alternatives 非空 | 笔记结构合法、备选方案在场 | 动机真实、备选诚实（语义自检见 `templates/docs/notes-quality-gate.md`） |
-| note-classification | 生命周期/类/日期/文件名合法 | 目录归属在封闭集内 | 类选得恰当 |
-| note-archive-seal | 归档树 append-only | 封存件未被改、manifest 完好 | "该归档"这个判断本身 |
-| ratchet | 禁止模式基线只减不增 | 无新增命中、基线无失效条目 | 存量在减少、模式写得合理 |
+门禁、笔记分类、棘轮规则集中在仓库根的 `nodrift.yml`；`init` 释放的是逐行注释的骨架（原件：[templates/nodrift.yml](templates/nodrift.yml)）。未知键加载时报错，不存在静默忽略。
 
-## 四条元规则
+## 本仓即第一客户
 
-1. **规则即代码**：反复口头提醒的规则必须写成门禁进 CI；`nodrift.yml` 是唯一开关面。
-2. **门禁有自测**：每个门禁自带覆盖其模块的测试；每门公开声明证明/不证明，杜绝"绿 = 对"的幻觉；门禁探测语料为 0 时自身即红。
-3. **记忆会修剪**：决策进 `.agents/notes/`，归档即冻结且不再是权威；字数与年龄永远不是归档标准（纪律见 skills 的 agent-notes）。
-4. **宪法有预算**：AGENTS.md 受 doc-budgets 棘轮管辖，上调要在 PR 说明理由；细则各住其家（bug→postmortem、决策→notes、流程→docs/），宪法只放 1–3 行的规则与指针。
-
-## 本仓开发（自举）
-
-本仓是它的第一个客户：七个门禁、字数预算、棘轮规则、单判决 CI 全部对自身生效。命令：`npm test`、`npm run coverage`（`src/**` 逐文件 100% 行/分支/函数/语句，防御性死角用带理由的 `v8 ignore` 豁免）、`npm run check`（构建后自跑门禁）。模板改动只动 `templates/` 原件，`gen:templates` 会在各命令前重建内嵌快照。
-
-## Roadmap
-
-文档代码块编译门禁（fence → tsc）；双语文档 blob 配对；自定义进程门禁的进程树级 fail-fast；copier 分发通道；semgrep/ast-grep 桥接仓自定义规则；录制回放测试基建（生态确认空白件，单独设计）。
-
-## 文件清单
-
-`init` 安装 `templates/manifest.json` 列出的全部文件，按区块分组：
-
-| 区块 | 文件 | 用途 |
-|---|---|---|
-| 硬规则 | `templates/CONTRIBUTING.md`、`templates/.github/PULL_REQUEST_TEMPLATE.md` | 一页硬规则、PR 门禁清单（手拷即用的最小集） |
-| 入口文档 | `templates/README.md`、`templates/AGENTS.md` | 成对：人读的项目骨架、AI 读的宪法模板（约 330 词，以身作则低于默认预算） |
-| 工具配置 | `templates/nodrift.yml` | 门禁与笔记配置骨架（全注释） |
-| 决策笔记 | `templates/.agents/notes/README.md`、`templates/.agents/notes/templates/` 三模板 | 笔记机制说明与 proposed/implemented/rejected 骨架 |
-| CI | `templates/.github/workflows/ci-verdict.yml`（单判决，含两个坑注释）、`ci.yml` + `verify-notes.yml`（无 CLI 时的静态 fallback） | 三选一按是否装 CLI 使用 |
-| 工作流 | `templates/.agents/skills/` 六个 SKILL.md | pre-push-checks / code-review / agent-notes / prose-standard / find-simplifications / trim-cot-leakage |
-| 无 Node fallback | `templates/scripts/check` + `check-notes` | 零依赖 POSIX sh 脚本 |
-| 文档 | `templates/docs/notes-quality-gate.md`、`templates/docs/verify-rules.md` | 笔记语义自检（永不进脚本）、规则脚本化起手清单 |
-| 清单 | `templates/manifest.json` | 受管模板全量清单；`gen:templates` 在构建时校验其与 `templates/` 树一致并嵌入 dist |
+这个仓库被自己装的全部机制管着：七道门禁、字数预算、棘轮、单判决 CI 都对自身生效。本仓开发命令：`npm test`、`npm run coverage`（`src/**` 逐文件 100% 覆盖门禁）、`npm run check`（构建后自跑门禁）。规则与贡献方式见 [CONTRIBUTING.md](CONTRIBUTING.md) 与 [AGENTS.md](AGENTS.md)。
 
 ## License
 
-MIT（见 `LICENSE`）。门禁与笔记机制的设计移植自 DeepSeek Harness（MIT），溯源图见 `NOTICE` 与本仓第一篇决策笔记 `.agents/notes/implemented/process/2026-09-28-shitcode-v0-1-design.md`。
+MIT（见 [LICENSE](LICENSE)）。机制设计移植自 DeepSeek Harness（MIT），溯源见 [NOTICE](NOTICE) 与[设计笔记](.agents/notes/implemented/process/2026-09-28-shitcode-v0-1-design.md)。
