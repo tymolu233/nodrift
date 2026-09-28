@@ -13,10 +13,10 @@
 
 ## 快速开始
 
-新项目目录里一条命令装上（npm 包名与 bin 同名：`nodrift`）：
+新项目目录里一条命令装上（npm 包名 `nodrift-cli`，装完后命令是 `nodrift`）：
 
 ```sh
-npx nodrift init        # 全量装进你的项目目录；已有文件不覆盖，nodrift.yml 永远归你改
+npx nodrift-cli init        # 全量装进你的项目目录；已有文件不覆盖，nodrift.yml 永远归你改
 ```
 
 装完即得一对入口文档：**README.md 给人读**（骨架随装：项目名/简介/快速开始占位）、**AGENTS.md 给 agent 读**（宪法模板）。`init` 收尾会按仓库状态打印一份区分 agent/human 的 `next steps` 工单——两个入口里没填掉的占位是检出项（检出什么报什么），裁剪配置、首检、接 CI、提交是每次必给的收尾：
@@ -24,7 +24,7 @@ npx nodrift init        # 全量装进你的项目目录；已有文件不覆盖
 之后把 CLI 装进项目依赖，日常走 npm script 或 `npx nodrift <command>`：
 
 ```sh
-npm install --save-dev nodrift
+npm install --save-dev nodrift-cli
 npx nodrift check
 ```
 
