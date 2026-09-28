@@ -6,5 +6,5 @@ Adapted mechanisms include: the Agent Notes lifecycle and frozen archive seal,
 the Markdown/doc-budget gate designs, the ratchet baseline design
 (hash-fingerprinted, monotonic-debt baselines), and the single-verdict CI
 pattern. All adaptations were rewritten for language-agnostic use; see the
-Agent Note `.agents/notes/implemented/process/2026-09-28-govkit-v0-1-design.md`
+Agent Note `.agents/notes/implemented/process/2026-09-28-anti-shishan-v0-1-design.md`
 for the provenance map.

@@ -1,5 +1,5 @@
 /**
- * Contract between the govkit runner, built-in gates, and CLI commands.
+ * Contract between the anti-shishan runner, built-in gates, and CLI commands.
  * Every collaborator codes against this file; changing it is an API review.
  */
 
@@ -32,17 +32,17 @@ export interface GateResult {
 export interface GateContext {
   /** Absolute path of the repository being checked. */
   repoRoot: string
-  /** This gate's section of govkit.yml, with `enabled` already handled by the runner. */
+  /** This gate's section of anti-shishan.yml, with `enabled` already handled by the runner. */
   options: Record<string, unknown>
   /** Normalized full configuration for cross-gate facts (e.g. notes root). */
-  config: GovkitConfig
+  config: KitConfig
 }
 
 /**
  * A built-in gate.
  *
  * `doc` is the gate's honesty contract: it must state what a green run proves
- * AND what it does not prove. It is printed in `govkit check --list` and in
+ * AND what it does not prove. It is printed in `anti-shishan check --list` and in
  * failure reports, so users never mistake "checked" for "correct".
  */
 export interface Gate {
@@ -70,8 +70,8 @@ export interface GateSection {
   [key: string]: unknown
 }
 
-/** Normalized govkit.yml contents. */
-export interface GovkitConfig {
+/** Normalized anti-shishan.yml contents. */
+export interface KitConfig {
   notes: NotesConfig
   gates: Record<string, GateSection>
 }

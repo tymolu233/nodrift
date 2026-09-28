@@ -1,5 +1,5 @@
 # Minimal CI red line — static fallback for a repository that does NOT run
-# govkit. From level 1 on this is superseded by ci-verdict.yml, which adds the
+# anti-shishan. From level 1 on this is superseded by ci-verdict.yml, which adds the
 # gates job and the single all-checks-passed verdict; keep one or the other,
 # not both. Replace lint/typecheck/test with the target stack's commands.
 # Principle: branch protection + green-to-merge; the full suite belongs to CI,

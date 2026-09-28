@@ -5,7 +5,7 @@ description: Use when reviewing a pull request — orients to a blocker-over-nit
 
 # Code Review
 
-Prioritize correctness, lifecycle, security, and broken required behavior over style. **A short review with one substantiated blocker beats a long list of nits.** Read the diff plus enough surrounding code to understand the design; a file list is not a review. Do not spend review comments on what a green gate already enforces — check `govkit check --list` first.
+Prioritize correctness, lifecycle, security, and broken required behavior over style. **A short review with one substantiated blocker beats a long list of nits.** Read the diff plus enough surrounding code to understand the design; a file list is not a review. Do not spend review comments on what a green gate already enforces — check `anti-shishan check --list` first.
 
 ## Sources of truth
 

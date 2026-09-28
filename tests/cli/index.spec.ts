@@ -21,7 +21,7 @@ function write(rel: string, content: string): void {
 }
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'govkit-cli-'))
+  dir = mkdtempSync(join(tmpdir(), 'anti-shishan-cli-'))
   out = []
   err = []
   io = { stdout: (line) => out.push(line), stderr: (line) => err.push(line) }
@@ -39,12 +39,12 @@ describe('meta', () => {
 
   it('--help prints help to stdout', async () => {
     expect(await run('--help')).toBe(0)
-    expect(out.join('\n')).toContain('govkit check')
+    expect(out.join('\n')).toContain('anti-shishan check')
   })
 
   it('bare invocation prints help to stderr with exit 2', async () => {
     expect(await run()).toBe(2)
-    expect(err.join('\n')).toContain('govkit check')
+    expect(err.join('\n')).toContain('anti-shishan check')
   })
 
   it('unknown command exits 1 with an error line', async () => {
@@ -56,7 +56,7 @@ describe('meta', () => {
 describe('init', () => {
   it('installs level 1 by default and is idempotent', async () => {
     expect(await run('init', '--dir', dir)).toBe(0)
-    for (const rel of ['CONTRIBUTING.md', '.github/PULL_REQUEST_TEMPLATE.md', 'govkit.yml', 'AGENTS.md', '.agents/notes/README.md']) {
+    for (const rel of ['CONTRIBUTING.md', '.github/PULL_REQUEST_TEMPLATE.md', 'anti-shishan.yml', 'AGENTS.md', '.agents/notes/README.md']) {
       expect(existsSync(join(dir, rel)), rel).toBe(true)
     }
     const again = await run('init', '--dir', dir)
@@ -67,7 +67,7 @@ describe('init', () => {
   it('--level 0 installs only the static layer', async () => {
     expect(await run('init', '--level', '0', '--dir', dir)).toBe(0)
     expect(existsSync(join(dir, 'CONTRIBUTING.md'))).toBe(true)
-    expect(existsSync(join(dir, 'govkit.yml'))).toBe(false)
+    expect(existsSync(join(dir, 'anti-shishan.yml'))).toBe(false)
   })
 
   it('rejects bad levels and unknown flags', async () => {
@@ -84,21 +84,21 @@ describe('init', () => {
     expect(err[1]).toMatch(/--dir must be a path/)
   })
 
-  it('--force rewrites managed files but preserves govkit.yml with a note', async () => {
+  it('--force rewrites managed files but preserves anti-shishan.yml with a note', async () => {
     expect(await run('init', '--dir', dir)).toBe(0)
     write('AGENTS.md', 'LOCALLY EDITED')
-    write('govkit.yml', 'user: edits\n')
+    write('anti-shishan.yml', 'user: edits\n')
     expect(await run('init', '--dir', dir, '--force')).toBe(0)
     expect(readFileSync(join(dir, 'AGENTS.md'), 'utf8')).not.toBe('LOCALLY EDITED')
-    expect(readFileSync(join(dir, 'govkit.yml'), 'utf8')).toBe('user: edits\n')
+    expect(readFileSync(join(dir, 'anti-shishan.yml'), 'utf8')).toBe('user: edits\n')
     expect(out.join('\n')).toContain('rewrote   AGENTS.md')
-    expect(out.join('\n')).toContain('govkit.yml preserved')
+    expect(out.join('\n')).toContain('anti-shishan.yml preserved')
   })
 })
 
 describe('check', () => {
   it('--list prints every gate with its doc and state', async () => {
-    write('govkit.yml', 'version: 1\ngates:\n  md-wrap: {}\n  md-links: { enabled: false }\n')
+    write('anti-shishan.yml', 'version: 1\ngates:\n  md-wrap: {}\n  md-links: { enabled: false }\n')
     expect(await run('check', '--list', '--dir', dir)).toBe(0)
     const text = out.join('\n')
     for (const id of ['md-wrap', 'md-links', 'doc-budgets', 'note-classification', 'note-format', 'note-archive-seal', 'ratchet']) {
@@ -111,23 +111,23 @@ describe('check', () => {
 
   it('fails on wrapped markdown and fails loud on unknown gate ids', async () => {
     write('a.md', 'line one\nline two\n')
-    write('govkit.yml', 'version: 1\ngates:\n  md-wrap: {}\n')
+    write('anti-shishan.yml', 'version: 1\ngates:\n  md-wrap: {}\n')
     expect(await run('check', '--dir', dir)).toBe(1)
     expect(err.join('\n')).toContain('md-wrap')
-    write('govkit.yml', 'version: 1\ngates:\n  not-a-gate: {}\n')
+    write('anti-shishan.yml', 'version: 1\ngates:\n  not-a-gate: {}\n')
     expect(await run('check', '--dir', dir)).toBe(1)
     expect(err[err.length - 1]).toMatch(/unknown gate id/)
   })
 
   it('--only runs one gate and rejects disabled ones', async () => {
     write('a.md', 'fine\n')
-    write('govkit.yml', 'version: 1\ngates:\n  md-wrap: {}\n  md-links: { enabled: false }\n')
+    write('anti-shishan.yml', 'version: 1\ngates:\n  md-wrap: {}\n  md-links: { enabled: false }\n')
     expect(await run('check', '--only', 'md-wrap', '--dir', dir)).toBe(0)
     expect(await run('check', '--only', 'md-links', '--dir', dir)).toBe(1)
     expect(err[err.length - 1]).toMatch(/not enabled/)
   })
 
-  it('fails loud when govkit.yml is missing', async () => {
+  it('fails loud when anti-shishan.yml is missing', async () => {
     expect(await run('check', '--dir', dir)).toBe(1)
     expect(err[0]).toMatch(/config file not found/)
   })
@@ -140,7 +140,7 @@ describe('check', () => {
 
   it('--fail-fast stops after the first failing gate', async () => {
     write('a.md', 'one\ntwo\n')
-    write('govkit.yml', 'version: 1\ngates:\n  md-wrap: {}\n  md-links: {}\n')
+    write('anti-shishan.yml', 'version: 1\ngates:\n  md-wrap: {}\n  md-links: {}\n')
     expect(await run('check', '--fail-fast', '--dir', dir)).toBe(1)
     const text = err.join('\n')
     expect(text).toContain('md-wrap')
@@ -150,7 +150,7 @@ describe('check', () => {
 
 describe('note', () => {
   beforeEach(() => {
-    write('govkit.yml', 'version: 1\nnotes:\n  root: .agents/notes\ngates: {}\n')
+    write('anti-shishan.yml', 'version: 1\nnotes:\n  root: .agents/notes\ngates: {}\n')
   })
 
   it('new creates a proposed note with defaults', async () => {
@@ -233,7 +233,7 @@ describe('ratchet', () => {
   ].join('\n')
 
   beforeEach(() => {
-    write('govkit.yml', YAML)
+    write('anti-shishan.yml', YAML)
     write('src/a.ts', '// TODO fix this\n')
   })
 
@@ -275,13 +275,13 @@ describe('ratchet', () => {
   })
 
   it('update on an empty rules list names `none configured`', async () => {
-    write('govkit.yml', 'version: 1\ngates:\n  ratchet:\n    rules: []\n')
+    write('anti-shishan.yml', 'version: 1\ngates:\n  ratchet:\n    rules: []\n')
     expect(await run('ratchet', 'update', 'nope', '--dir', dir)).toBe(1)
     expect(err[err.length - 1]).toMatch(/none configured/)
   })
 
   it('missing ratchet section fails loud; missing subcommand names the known ones', async () => {
-    write('govkit.yml', 'version: 1\ngates: {}\n')
+    write('anti-shishan.yml', 'version: 1\ngates: {}\n')
     expect(await run('ratchet', 'verify', '--dir', dir)).toBe(1)
     expect(err[err.length - 1]).toMatch(/rules is required/)
     expect(await run('ratchet', 'update', 'all', '--dir', dir)).toBe(1)

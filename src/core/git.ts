@@ -1,7 +1,7 @@
 /**
  * Best-effort git helpers: every function returns undefined instead of
  * throwing when git is unavailable or the target is not a repository,
- * because govkit must keep working on pre-`git init` projects.
+ * because anti-shishan must keep working on pre-`git init` projects.
  */
 import { execFileSync } from 'node:child_process'
 

@@ -1,6 +1,6 @@
-# govkit configuration — format version 1 (the only version this govkit reads).
+# anti-shishan configuration — format version 1 (the only version this anti-shishan reads).
 # Unknown keys fail loud at load. Gate reference: the kit README's gate table,
-# or `govkit check --list` for what each gate proves and does not prove.
+# or `anti-shishan check --list` for what each gate proves and does not prove.
 version: 1
 
 notes:
@@ -57,8 +57,8 @@ gates:
     enabled: true
 
   # Baseline-frozen pattern rules. Workflow: add the rule, run
-  # `govkit ratchet update <id>` to snapshot every current offender into the
-  # baseline file, then `govkit check` rejects any NEW offender while the
+  # `anti-shishan ratchet update <id>` to snapshot every current offender into the
+  # baseline file, then `anti-shishan check` rejects any NEW offender while the
   # recorded set may only shrink. Rules take effect on day one of a dirty
   # tree; committing a smaller baseline is always welcome, a larger one never.
   ratchet:

@@ -1,6 +1,6 @@
 # 从口头规则到 verify 脚本：起手清单
 
-方法论：团队反复口头提醒的规则 = 候选门禁。挑最先犯的 5 条开始，每条脚本自带单测，进 CI。通用半边 govkit 已内置（`govkit check --list` 列出各自"证明/不证明"）：本篇面向仓特有规则，以及新门禁该有的形状。
+方法论：团队反复口头提醒的规则 = 候选门禁。挑最先犯的 5 条开始，每条脚本自带单测，进 CI。通用半边 anti-shishan 已内置（`anti-shishan check --list` 列出各自"证明/不证明"）：本篇面向仓特有规则，以及新门禁该有的形状。
 
 ## 起手 Top 5（与语言无关）
 
@@ -28,7 +28,7 @@ baseline.json   # 存量违规的精确位置快照
 check.py        # 实际违规 ⊆ baseline 才绿；新增违规红；baseline 只许缩小
 ```
 
-规则因此可以 Day 1 生效，无需先大扫除。对应 DeepSeek Harness 的 `no-unknown-casts.baseline.json`；govkit 的 `ratchet` 门禁即此模式：`govkit ratchet update <id>` 先记全集，此后 `govkit check` 拒新增、只收缩小的基线。
+规则因此可以 Day 1 生效，无需先大扫除。对应 DeepSeek Harness 的 `no-unknown-casts.baseline.json`；anti-shishan 的 `ratchet` 门禁即此模式：`anti-shishan ratchet update <id>` 先记全集，此后 `anti-shishan check` 拒新增、只收缩小的基线。
 
 ## 多语言实现位
 

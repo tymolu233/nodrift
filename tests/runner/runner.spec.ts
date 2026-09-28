@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import type { Gate, GovkitConfig } from '../../src/core/types.js'
+import type { Gate, KitConfig } from '../../src/core/types.js'
 import { runGates } from '../../src/runner/runner.js'
 
-const config: GovkitConfig = {
+const config: KitConfig = {
   notes: { root: '.agents/notes', classes: ['feature'] },
   gates: { inject: { custom: 'x' } },
 }

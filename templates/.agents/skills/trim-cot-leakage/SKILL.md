@@ -48,4 +48,4 @@ Apply these keep rules as written; unaided citation purges fail in both directio
 1. Audit read-only first: search the patterns above, then also read the densest prose in scope — batteries never catch everything.
 2. Before deleting anything, enumerate the passage's propositions (see `prose-standard`) and restate the survivors.
 3. Never touch sealed archives (`.agents/notes/archived/`) or vendored trees.
-4. Verify: rerun the searches expecting only sanctioned keeps, then `govkit check --only md-wrap,md-links`.
+4. Verify: rerun the searches expecting only sanctioned keeps, then `anti-shishan check --only md-wrap,md-links`.

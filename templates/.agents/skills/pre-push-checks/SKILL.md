@@ -23,8 +23,8 @@ git diff --name-only origin/<base>...HEAD
 Match evidence to the surface the diff actually reaches:
 
 - **Source behavior** — the owning test file or focused test name, through the project's real runner. Add adjacent tests only when a shared contract changed.
-- **Docs, notes, prose** — `govkit check --only md-wrap,md-links,doc-budgets`, plus `note-format,note-classification,note-archive-seal` when `.agents/notes/` changed.
-- **Config, manifests, gate wiring** — `govkit check` plus the build. A change to a gate must demonstrate red on an invalid case, not only green on the valid tree.
+- **Docs, notes, prose** — `anti-shishan check --only md-wrap,md-links,doc-budgets`, plus `note-format,note-classification,note-archive-seal` when `.agents/notes/` changed.
+- **Config, manifests, gate wiring** — `anti-shishan check` plus the build. A change to a gate must demonstrate red on an invalid case, not only green on the valid tree.
 - **User- or model-visible output** — the snapshot or scenario owning that output, updated in the same change.
 - **No local equivalent exists** — say so plainly and justify it; do not substitute the full suite as a reflex.
 

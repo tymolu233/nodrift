@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * govkit CLI: `init` (scaffold templates), `check` (run enabled gates),
+ * anti-shishan CLI: `init` (scaffold templates), `check` (run enabled gates),
  * `note new|archive` (decision-note lifecycle), `ratchet update|verify`
  * (forbidden-pattern baselines). Routing is dependency-injected through
  * `main(argv, io)` so tests drive every command in-process.
@@ -9,7 +9,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { CONFIG_FILE_NAME, loadConfig } from '../core/config.js'
-import type { GovkitConfig } from '../core/types.js'
+import type { KitConfig } from '../core/types.js'
 import { parseRules } from '../gates/ratchet.js'
 import { BUILTIN_GATES, resolveGates } from '../gates/registry.js'
 import { defaultTemplatesDir, scaffold } from '../init/scaffold.js'
@@ -26,25 +26,25 @@ export interface CliIo {
   stderr: (line: string) => void
 }
 
-const HELP = `govkit — governance kit for AI-assisted development
+const HELP = `anti-shishan — governance kit for AI-assisted development
 
 Commands:
-  govkit init [--level 0|1|2] [--force] [--dir <path>]
+  anti-shishan init [--level 0|1|2] [--force] [--dir <path>]
       Install template files (constitution, notes, verdict CI, skills). Level
       defaults to 1; higher levels include lower ones. Existing files are
-      skipped; --force refreshes them (govkit.yml stays user-owned).
-  govkit check [--config <path>] [--only <id,id>] [--fail-fast] [--list] [--dir <path>]
+      skipped; --force refreshes them (anti-shishan.yml stays user-owned).
+  anti-shishan check [--config <path>] [--only <id,id>] [--fail-fast] [--list] [--dir <path>]
       Run the gates enabled in ${CONFIG_FILE_NAME}. Exit 1 when any gate fails.
-  govkit note new --class <class> --title <t> [--lifecycle proposed|rejected] [--date yyyy-mm-dd] [--dir <path>]
+  anti-shishan note new --class <class> --title <t> [--lifecycle proposed|rejected] [--date yyyy-mm-dd] [--dir <path>]
       Create a decision note with the right path and skeleton.
-  govkit note archive <note-path> [--dir <path>]
+  anti-shishan note archive <note-path> [--dir <path>]
       Move an implemented note into archived/ and seal it (append-only manifest).
-  govkit ratchet verify [--config <path>] [--dir <path>]
+  anti-shishan ratchet verify [--config <path>] [--dir <path>]
       Diff forbidden-pattern occurrences against their baselines (read-only).
-  govkit ratchet update <rule-id|all> [--config <path>] [--dir <path>]
+  anti-shishan ratchet update <rule-id|all> [--config <path>] [--dir <path>]
       Rewrite baselines from a fresh scan (registers or prunes debt).
 
-Gates have a doc line each; run \`govkit check --list\` to read what each one
+Gates have a doc line each; run \`anti-shishan check --list\` to read what each one
 proves — and what it does not prove.`
 
 function parseLevel(value: string | boolean | undefined): 0 | 1 | 2 {
@@ -60,7 +60,7 @@ function requireDir(flags: Record<string, string | boolean>): string {
   return resolve(dir)
 }
 
-function loadConfigFor(dir: string, flags: Record<string, string | boolean>): GovkitConfig {
+function loadConfigFor(dir: string, flags: Record<string, string | boolean>): KitConfig {
   const configFlag = flags['config']
   const configPath = configFlag === undefined ? undefined : resolve(dir, requireFlag(flags, 'config'))
   return loadConfig(dir, configPath)
@@ -86,7 +86,7 @@ function cmdInit(flags: Record<string, string | boolean>, io: CliIo): number {
   for (const rel of plan.created) io.stdout(`created   ${rel}`)
   for (const rel of plan.overwritten) io.stdout(`rewrote   ${rel}`)
   for (const rel of plan.skipped) io.stdout(`skipped   ${rel} (already exists)`)
-  if (plan.configPreserved) io.stdout('note      govkit.yml preserved: it is user-owned; delete it to re-scaffold')
+  if (plan.configPreserved) io.stdout('note      anti-shishan.yml preserved: it is user-owned; delete it to re-scaffold')
   io.stdout(`init level ${level} done in ${targetDir}`)
   return 0
 }
@@ -145,7 +145,7 @@ function cmdNoteArchive(flags: Record<string, string | boolean>, positionals: st
   return 0
 }
 
-function parseRatchetRules(config: GovkitConfig, idFilter: string) {
+function parseRatchetRules(config: KitConfig, idFilter: string) {
   const rules = parseRules(config.gates['ratchet'] ?? {})
   if (idFilter === 'all') return rules
   const rule = rules.find((r) => r.id === idFilter)
@@ -168,7 +168,7 @@ function cmdRatchetVerify(flags: Record<string, string | boolean>, io: CliIo): n
     }
     if (diff.stale.length > 0) {
       bad = true
-      io.stderr(`✗ ${rule.id}: baseline holds ${diff.stale.length} vanished occurrence(s); run \`govkit ratchet update ${rule.id}\``)
+      io.stderr(`✗ ${rule.id}: baseline holds ${diff.stale.length} vanished occurrence(s); run \`anti-shishan ratchet update ${rule.id}\``)
     }
   }
   if (!bad) io.stdout('ratchet baselines hold')
@@ -194,7 +194,7 @@ function version(): string {
 }
 
 /**
- * Run the CLI. @param argv arguments after `govkit`; @returns exit code
+ * Run the CLI. @param argv arguments after `anti-shishan`; @returns exit code
  * (0 success, 1 failure/user error, 2 usage without command).
  */
 export async function main(argv: string[], io: CliIo): Promise<number> {

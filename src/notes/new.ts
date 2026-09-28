@@ -112,7 +112,7 @@ export function createNote(
   if (!notesConfig.classes.includes(cls)) {
     throw new Error(
       `createNote: unknown class ${JSON.stringify(cls)} (known: ${notesConfig.classes.join(', ')}); ` +
-        'add it to notes.classes in govkit.yml to use it',
+        'add it to notes.classes in anti-shishan.yml to use it',
     )
   }
   const date = options.date ?? new Date().toISOString().slice(0, 10)

@@ -99,7 +99,7 @@ export function updateBaseline(repoRoot: string, rule: RatchetRule): RuleUpdate 
 }
 
 /**
- * Update every rule's baseline; the `govkit ratchet update <id>` CLI filters
+ * Update every rule's baseline; the `anti-shishan ratchet update <id>` CLI filters
  * the rule list first.
  * @param repoRoot absolute repository root
  * @param rules rules to update

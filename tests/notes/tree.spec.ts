@@ -21,7 +21,7 @@ const CONFIG: NotesConfig = {
 }
 
 function repo(): string {
-  return mkdtempSync(join(tmpdir(), 'govkit-tree-'))
+  return mkdtempSync(join(tmpdir(), 'anti-shishan-tree-'))
 }
 
 function write(root: string, rel: string, content = 'x\n'): void {

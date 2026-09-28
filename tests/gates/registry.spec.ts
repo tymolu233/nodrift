@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import type { GovkitConfig } from '../../src/core/types.js'
+import type { KitConfig } from '../../src/core/types.js'
 import { BUILTIN_GATES, resolveGates } from '../../src/gates/registry.js'
 
-function config(gates: GovkitConfig['gates']): GovkitConfig {
+function config(gates: KitConfig['gates']): KitConfig {
   return { notes: { root: '.agents/notes', classes: ['feature'] }, gates }
 }
 

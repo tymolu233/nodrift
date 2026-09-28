@@ -3,11 +3,11 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { sha256File } from '../../src/core/hash.js'
-import type { GateContext, GovkitConfig } from '../../src/core/types.js'
+import type { GateContext, KitConfig } from '../../src/core/types.js'
 import { noteArchiveSealGate } from '../../src/gates/note-archive-seal.js'
 import { archiveNote } from '../../src/notes/archive.js'
 
-const CONFIG: GovkitConfig = {
+const CONFIG: KitConfig = {
   notes: {
     root: '.agents/notes',
     classes: ['feature', 'bug-fix', 'simplification', 'architecture', 'process', 'testing'],
@@ -16,7 +16,7 @@ const CONFIG: GovkitConfig = {
 }
 
 function repo(): string {
-  return mkdtempSync(join(tmpdir(), 'govkit-gate-seal-'))
+  return mkdtempSync(join(tmpdir(), 'anti-shishan-gate-seal-'))
 }
 
 function write(root: string, rel: string, content: string): void {

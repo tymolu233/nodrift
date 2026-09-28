@@ -4,13 +4,24 @@
   "description": "Governance kit for AI-assisted development: executable gates, decision notes, ratchet baselines, and constitution templates.",
   "type": "module",
   "bin": {
-    "govkit": "dist/cli/index.js"
+    "anti-shishan": "dist/cli/index.js",
+    "anti-shishan-kit": "dist/cli/index.js"
   },
   "engines": {
     "node": ">=22"
   },
-  "private": true,
   "license": "MIT",
+  "keywords": [
+    "agents-md",
+    "ai-development",
+    "governance",
+    "code-quality",
+    "cli",
+    "agent-notes"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit",
@@ -18,11 +29,13 @@
     "test": "vitest run",
     "coverage": "vitest run --coverage",
     "check": "npm run build && node dist/cli/index.js check",
-    "govkit": "node dist/cli/index.js"
+    "anti-shishan": "node dist/cli/index.js",
+    "prepublishOnly": "npm run coverage && npm run build"
   },
   "files": [
     "dist",
-    "templates"
+    "templates",
+    "NOTICE"
   ],
   "dependencies": {
     "mdast-util-from-markdown": "^2.0.2",

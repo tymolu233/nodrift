@@ -1,5 +1,5 @@
 /**
- * govkit.yml loading, defaults, and validation.
+ * anti-shishan.yml loading, defaults, and validation.
  *
  * Misconfiguration fails loud at load: unknown top-level keys, wrong types,
  * and unknown note classes are errors, never silent skips. Unknown gate ids
@@ -8,7 +8,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { parse } from 'yaml'
-import type { GovkitConfig, NotesConfig } from './types.js'
+import type { KitConfig, NotesConfig } from './types.js'
 
 /** Default note classes, mirroring the deepseek-harness taxonomy. */
 export const DEFAULT_NOTE_CLASSES = [
@@ -24,7 +24,7 @@ export const DEFAULT_NOTE_CLASSES = [
 export const DEFAULT_NOTES_ROOT = '.agents/notes'
 
 /** Default config file name searched at the repository root. */
-export const CONFIG_FILE_NAME = 'govkit.yml'
+export const CONFIG_FILE_NAME = 'anti-shishan.yml'
 
 /** Raised for every config problem; `message` must say what to fix. */
 export class ConfigError extends Error {}
@@ -67,7 +67,7 @@ function parseNotes(raw: unknown): NotesConfig {
   return notes
 }
 
-function parseGates(raw: unknown): Record<string, GovkitConfig['gates'][string]> {
+function parseGates(raw: unknown): Record<string, KitConfig['gates'][string]> {
   if (raw === undefined) return {}
   const value = record(raw, 'gates')
   for (const [id, section] of Object.entries(value)) {
@@ -77,11 +77,11 @@ function parseGates(raw: unknown): Record<string, GovkitConfig['gates'][string]>
     }
     record(section, `gates.${id}`)
   }
-  return value as GovkitConfig['gates']
+  return value as KitConfig['gates']
 }
 
 /**
- * Load and validate govkit.yml under `repoRoot`. Throws ConfigError naming the
+ * Load and validate anti-shishan.yml under `repoRoot`. Throws ConfigError naming the
  * offending key on any problem; a missing file is also a ConfigError (callers
  * that tolerate absence check `existsSync` first or catch).
  *
@@ -89,10 +89,10 @@ function parseGates(raw: unknown): Record<string, GovkitConfig['gates'][string]>
  * @param configPath optional explicit config file path (overrides the default search)
  * @returns normalized configuration with defaults applied
  */
-export function loadConfig(repoRoot: string, configPath?: string): GovkitConfig {
+export function loadConfig(repoRoot: string, configPath?: string): KitConfig {
   const file = configPath ?? join(repoRoot, CONFIG_FILE_NAME)
   if (!existsSync(file)) {
-    fail(`config file not found: ${file} (run \`govkit init\` to create one)`)
+    fail(`config file not found: ${file} (run \`anti-shishan init\` to create one)`)
   }
   let parsed: unknown
   try {
@@ -100,14 +100,14 @@ export function loadConfig(repoRoot: string, configPath?: string): GovkitConfig 
   } catch (error) {
     fail(`config file ${file} is not valid YAML: ${(error as Error).message}`)
   }
-  const root = record(parsed, 'govkit.yml')
+  const root = record(parsed, 'anti-shishan.yml')
   for (const key of Object.keys(root)) {
     if (key !== 'version' && key !== 'notes' && key !== 'gates') {
-      fail(`govkit.yml: ${key} is not a known top-level key (known: version, notes, gates)`)
+      fail(`anti-shishan.yml: ${key} is not a known top-level key (known: version, notes, gates)`)
     }
   }
   if (root['version'] !== undefined && root['version'] !== 1) {
-    fail('govkit.yml: version must be 1 (this govkit only understands version 1)')
+    fail('anti-shishan.yml: version must be 1 (this anti-shishan only understands version 1)')
   }
   return {
     notes: parseNotes(root['notes']),

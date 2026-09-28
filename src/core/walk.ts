@@ -3,7 +3,7 @@
  *
  * Uses `git ls-files -co --exclude-standard` when the target is a git
  * repository so untracked-but-intended files are admitted and ignored files
- * are not; falls back to a plain recursive walk otherwise so govkit also
+ * are not; falls back to a plain recursive walk otherwise so anti-shishan also
  * works on pre-`git init` projects and extracted tarballs.
  */
 import { execFileSync } from 'node:child_process'

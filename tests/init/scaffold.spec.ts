@@ -19,7 +19,7 @@ function putManifest(value: unknown): void {
 }
 
 beforeEach(() => {
-  root = mkdtempSync(join(tmpdir(), 'govkit-scaffold-'))
+  root = mkdtempSync(join(tmpdir(), 'anti-shishan-scaffold-'))
   templates = join(root, 'templates')
   target = join(root, 'target')
   mkdirSync(templates, { recursive: true })
@@ -89,14 +89,14 @@ describe('scaffold', () => {
     expect(readFileSync(join(target, 'x.md'), 'utf8')).toBe('X')
   })
 
-  it('never overwrites govkit.yml even with force and reports configPreserved', () => {
-    putTemplate('govkit.yml', 'template: 1')
-    putManifest({ 0: ['govkit.yml'] })
-    writeFileSync(join(target, 'govkit.yml'), 'user: edits')
+  it('never overwrites anti-shishan.yml even with force and reports configPreserved', () => {
+    putTemplate('anti-shishan.yml', 'template: 1')
+    putManifest({ 0: ['anti-shishan.yml'] })
+    writeFileSync(join(target, 'anti-shishan.yml'), 'user: edits')
     const plan = scaffold({ templatesDir: templates, targetDir: target, level: 0, force: true })
     expect(plan.configPreserved).toBe(true)
     expect(plan.overwritten).toEqual([])
-    expect(readFileSync(join(target, 'govkit.yml'), 'utf8')).toBe('user: edits')
+    expect(readFileSync(join(target, 'anti-shishan.yml'), 'utf8')).toBe('user: edits')
   })
 })
 

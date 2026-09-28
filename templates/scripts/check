@@ -3,7 +3,7 @@
 # everything reflexively — the full suite belongs to CI.
 # Usage: scripts/check (wire it as the pre-push hook of lefthook/husky).
 # Role: zero-dependency static fallback. Where Node is available, prefer
-# `govkit check` for the gates; this script complements it for lint/type/test
+# `anti-shishan check` for the gates; this script complements it for lint/type/test
 # selection and for repositories installed below level 1.
 set -eu
 cd "$(dirname "$0")/.."
@@ -39,7 +39,7 @@ if [ -d scripts/verify ]; then
   done
 fi
 
-# Rule 4: decision-note structure, when the mechanism is installed and govkit
+# Rule 4: decision-note structure, when the mechanism is installed and anti-shishan
 # is not (see .agents/notes/README.md; the note-* gates supersede this).
 if [ -d .agents/notes ] && [ -f scripts/check-notes ]; then
   sh scripts/check-notes

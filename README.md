@@ -1,64 +1,78 @@
 # 反屎山工具包（Anti-ShiShan Kit）
 
-把"AI 高度协作却不腐"的治理机制做成任何仓库都能装的工具包：一套静态模板（手拷即用，零依赖）+ 一个 govkit CLI（门禁运行器）。来源：对 DeepSeek Harness 开发规范与方法论的提炼（3.5 个月 19000 提交、几乎全部 AI 协作仍不腐），去掉了该仓库特有的规模假设。
+把"AI 高强度协作却不腐"的治理机制做成任何仓库都能装的工具包：一套静态模板（手拷即用，零依赖）+ 一个 anti-shishan CLI（门禁、决策笔记、棘轮基线的可执行形态，配置集中在目标仓根的 `anti-shishan.yml`）。机制提炼自 DeepSeek Harness（3.5 个月约 19,000 提交、几乎全部 AI 协作仍不腐），去掉了该仓库特有的规模假设；署名见其 MIT 许可与本仓 `NOTICE`。
 
 ## 两种使用形态
 
-- **静态模板层**：`templates/` 即安装树，直接拷进目标仓、替换 `<>` 占位即可，L0 连 Node 都不需要。
-- **govkit CLI 层**：门禁、决策笔记、棘轮基线的可执行形态，配置集中在目标仓根的 `govkit.yml`。
+- **静态模板层**：`templates/` 即安装树，直接拷进目标仓替换 `<>` 占位即可，L0 连 Node 都不需要。
+- **anti-shishan CLI 层**：`init` 安装、`check` 执行、`note`/`ratchet` 维护；模板与 CLI 共用同一颗 `templates/` 树。
 
 ## 级别
 
-- **L0 · 最小必做集**（任何项目 Day 1）：一页硬规则 + PR 门禁清单，两个文件手拷即完成。
-- **L1 · 标准集**（2+ 协作者或引入 AI agent）：govkit 配置、宪法模板（AGENTS.md，自带字数预算）、决策笔记机制、单判决 CI。
-- **L2 · 全量集**（大仓库 / AI 高参与度）：六个工作流 skills、零依赖 fallback 脚本、规则脚本化与语义自检文档。
+- **L0 · 最小必做集**（任何项目 Day 1）：一页硬规则 `CONTRIBUTING.md` + PR 门禁清单，两个文件手拷即成。
+- **L1 · 标准集**（2+ 协作者或引入 AI agent）：`anti-shishan.yml` 配置、宪法模板 `AGENTS.md`（自带字数预算与上调申诉流程）、决策笔记机制、单判决 CI 片段。
+- **L2 · 全量集**（大仓库 / AI 高参与度）：六个工作流 skills、零依赖 fallback 脚本与静态 CI、规则脚本化与笔记语义自检文档。
 
-级别是增量的：`govkit init --level N` 安装级别 0..N 的文件并集（见 `templates/manifest.json`）。
+级别是增量的：`anti-shishan init --level N` 安装级别 0..N 的文件并集（清单见 `templates/manifest.json`）。
 
-## 安装与快速开始
+## 快速开始
+
+新项目目录里一条命令装上（npm 包 `anti-shishan-kit`，提供 bin `anti-shishan-kit` 与短名 `anti-shishan`；命名说明：npm 上 `govkit` 已被无关项目占用）：
 
 ```sh
-npm install --save-dev anti-shishan-kit   # 发布后（包名占位）
-npx govkit init --level 1                 # 把模板清单拷进本仓
-npx govkit check                          # 跑门禁
+npx anti-shishan-kit init        # 装到你的项目目录（默认 level 1；已有文件不覆盖，anti-shishan.yml 永远归你改）
 ```
 
-本仓开发期（未发布）：`npm run build && node dist/cli/index.js <command>`。
+之后把 CLI 装进项目依赖，日常走 npm script 或 `npx anti-shishan <command>`：
+
+```sh
+npm install --save-dev anti-shishan-kit
+npx anti-shishan check
+```
+
+本仓开发期：`npm run build`，然后 `node dist/cli/index.js <command>`（或 `npm run anti-shishan -- <command>`）。
+
+**第一次 `check` 见红是特性**：报告会逐条点名还要补的占位——README 尚未存在（doc-budgets 指向失效路径）、示例棘轮规则还没有 `src/**` 可扫（语料哨兵：门禁探测范围收缩时不许装绿）。补齐占位后同一命令变绿；期间引入的真实违规（比如一个 `TODO`）会被 ratchet 以"新增即红、登记即封"的方式处理：`anti-shishan ratchet update <id|all>`。
 
 ## 命令一览
 
 | 命令 | 作用 |
 |---|---|
-| `govkit init --level 0\|1\|2` | 按 manifest 增量拷贝模板树；已有文件不覆盖（`--force` 例外，`govkit.yml` 永远保留归用户） |
-| `govkit check [--only <gate,...>] [--fail-fast]` | 跑门禁；`--list` 列出每门的"证明/不证明" |
-| `govkit note new <class> <topic>` | 按生命周期模板建决策笔记（日期与路径自动） |
-| `govkit note archive <path>` | 归档封印：插 `Archived:` 行并移入 `archived/<class>/` |
-| `govkit ratchet update <id>` | 重记棘轮基线全集；此后"只减不增"由 check 强制 |
+| `anti-shishan init --level 0\|1\|2 [--force] [--dir]` | 按 manifest 增量安装模板；`--force` 重刷受管文件但保留 `anti-shishan.yml` |
+| `anti-shishan check [--only <gate,...>] [--fail-fast] [--config] [--dir]` | 跑启用的门禁，任一失败退出 1；`--list` 打印每门的证明边界 |
+| `anti-shishan note new --class <c> --title <t> [--lifecycle proposed\|rejected] [--date]` | 生成正确路径与章节骨架的决策笔记 |
+| `anti-shishan note archive <note-path>` | 仅限 implemented：插 `Archived:` 行、移入 `archived/<class>/`、SHA-256 封存进 append-only manifest |
+| `anti-shishan ratchet verify` | 只读比对当前命中与基线（等价于 `check --only ratchet` 的展开版） |
+| `anti-shishan ratchet update <id\|all>` | 重扫重写基线：登记存量债、核销已偿还条目 |
 
 ## 七门禁一览
 
-每门的"证明/不证明"同时印在 `govkit check --list` 和失败报告里——绿≠对，只是绿所证明的那件事成立。
+每门的"证明/不证明"同时印在 `anti-shishan check --list` 和失败报告里——绿 ≠ 对，只是绿所证明的那件事成立。
 
 | 门禁 | 一句话 | 绿证明了 | 绿不证明 |
 |---|---|---|---|
 | md-wrap | Markdown 一段一物理行 | 段落未被硬换行 | 段落言之有物 |
-| md-links | 相对链接可解析 | 链接目标存在 | 指向的是正确的"家" |
-| doc-budgets | 字数预算棘轮 | 受管文件未超预算 | 内容值得这些字 |
-| note-format | 头块/骨架/Status 一致 | 笔记结构合法 | 动机真实、备选诚实（语义走 notes-quality-gate） |
-| note-classification | class 封闭集 | 目录归属在封闭集内 | 类选得恰当 |
-| note-archive-seal | 归档只增不改 | archived/ 未被封后回改 | "该归档"这个判断本身 |
-| ratchet | 基线只减不增 | 没有新增违规 | 存量在减少、模式写得合理 |
+| md-links | 相对链接与锚点可解析 | 链接目标、标题锚点存在 | 指向的是正确的"家"、外链可达 |
+| doc-budgets | 字数预算棘轮 | 受管文件未超预算且留 ≥5% 下调空间 | 内容值得这些字 |
+| note-format | 头块/骨架/Status 与目录一致、Alternatives 非空 | 笔记结构合法、备选方案在场 | 动机真实、备选诚实（语义自检见 `templates/docs/notes-quality-gate.md`） |
+| note-classification | 生命周期/类/日期/文件名合法 | 目录归属在封闭集内 | 类选得恰当 |
+| note-archive-seal | 归档树 append-only | 封存件未被改、manifest 完好 | "该归档"这个判断本身 |
+| ratchet | 禁止模式基线只减不增 | 无新增命中、基线无失效条目 | 存量在减少、模式写得合理 |
 
 ## 四条元规则
 
-1. **规则即代码**：反复口头提醒的规则必须写成门禁进 CI，禁止靠记忆维持；`govkit.yml` 是唯一开关面。
-2. **门禁有自测**：每个门禁自带"无效输入必红"的测试；每门公开声明证明/不证明，杜绝"绿=对"的幻觉。
-3. **记忆会修剪**：决策进 `.agents/notes/`，超龄归档、过期护栏按寿命删除；字数与年龄永远不是归档标准。
-4. **宪法有预算**：AGENTS.md 受 doc-budgets 棘轮管辖；细则住各自的"家"（bug→postmortem、决策→notes、流程→docs/），宪法只放 1–3 行的规则和指针。
+1. **规则即代码**：反复口头提醒的规则必须写成门禁进 CI；`anti-shishan.yml` 是唯一开关面。
+2. **门禁有自测**：每个门禁自带覆盖其模块的测试；每门公开声明证明/不证明，杜绝"绿 = 对"的幻觉；门禁探测语料为 0 时自身即红。
+3. **记忆会修剪**：决策进 `.agents/notes/`，归档即冻结且不再是权威；字数与年龄永远不是归档标准（纪律见 skills 的 agent-notes）。
+4. **宪法有预算**：AGENTS.md 受 doc-budgets 棘轮管辖，上调要在 PR 说明理由；细则各住其家（bug→postmortem、决策→notes、流程→docs/），宪法只放 1–3 行的规则与指针。
+
+## 本仓开发（自举）
+
+本仓是它的第一个客户：七个门禁、字数预算、棘轮规则、单判决 CI 全部对自身生效。命令：`npm test`、`npm run coverage`（`src/**` 逐文件 100% 行/分支/函数/语句，防御性死角用带理由的 `v8 ignore` 豁免）、`npm run check`（构建后自跑门禁）。v0.1 交付时 306 个测试全绿。
 
 ## Roadmap
 
-文档代码块编译门禁；中英文档配对校验；进程树级 fail-fast；copier 分发通道；semgrep 桥接仓特自定义规则；录制回放测试基建。
+文档代码块编译门禁（fence → tsc）；双语文档 blob 配对；自定义进程门禁的进程树级 fail-fast；copier 分发通道；semgrep/ast-grep 桥接仓自定义规则；录制回放测试基建（生态确认空白件，单独设计）。
 
 ## 文件清单
 
@@ -66,16 +80,17 @@ npx govkit check                          # 跑门禁
 |---|---|---|
 | `templates/CONTRIBUTING.md` | 一页硬规则 | L0 |
 | `templates/.github/PULL_REQUEST_TEMPLATE.md` | PR 门禁清单 | L0 |
-| `templates/govkit.yml` | 门禁与笔记配置骨架 | L1 |
-| `templates/AGENTS.md` | 宪法模板（≤350 词，以身作则受自身预算约束） | L1 |
+| `templates/anti-shishan.yml` | 门禁与笔记配置骨架（全注释） | L1 |
+| `templates/AGENTS.md` | 宪法模板（约 330 词，以身作则低于默认预算） | L1 |
 | `templates/.agents/notes/README.md` + `templates/.agents/notes/templates/` 三模板 | 决策笔记机制 | L1 |
-| `templates/.github/workflows/ci-verdict.yml` | 单判决 CI（all-checks-passed） | L1 |
+| `templates/.github/workflows/ci-verdict.yml` | 单判决 CI 片段（all-checks-passed，含两个坑注释） | L1 |
 | `templates/.agents/skills/` 六个 SKILL.md | pre-push-checks / code-review / agent-notes / prose-standard / find-simplifications / trim-cot-leakage | L2 |
 | `templates/scripts/check` + `check-notes` | 零依赖 fallback 脚本（POSIX sh） | L2 |
-| `templates/docs/verify-rules.md` + `notes-quality-gate.md` | 规则脚本化起手清单、笔记语义自检 | L2 |
-| `templates/.github/workflows/ci.yml` + `verify-notes.yml` | 无 govkit 仓的静态 CI fallback | L2 |
-| `templates/manifest.json` | init 消费的增量文件清单（键 "0"/"1"/"2"） | — |
+| `templates/docs/notes-quality-gate.md` | 笔记语义自检（永不进脚本） | L1 |
+| `templates/docs/verify-rules.md` | 规则脚本化起手清单 | L2 |
+| `templates/.github/workflows/ci.yml` + `verify-notes.yml` | 无 anti-shishan 仓的静态 CI fallback | L2 |
+| `templates/manifest.json` | init 消费的增量文件清单（键 `"0"/"1"/"2"`） | — |
 
-## 致谢
+## License
 
-本工具包移植自 DeepSeek Harness——其宪法式 `AGENTS.md`、`.agents/notes/` 决策笔记、单判决 CI 与棘轮基线实践——特此致谢；六个 skills 由其 `dsh-*` 同名技能通用化重写而来。
+MIT（见 `LICENSE`）。门禁与笔记机制的设计移植自 DeepSeek Harness（MIT），溯源图见 `NOTICE` 与本仓第一篇决策笔记 `.agents/notes/implemented/process/2026-09-28-anti-shishan-v0-1-design.md`。

@@ -18,7 +18,7 @@ const CONFIG: NotesConfig = {
 }
 
 function repo(): string {
-  return mkdtempSync(join(tmpdir(), 'govkit-new-'))
+  return mkdtempSync(join(tmpdir(), 'anti-shishan-new-'))
 }
 
 function write(root: string, rel: string, content: string): void {

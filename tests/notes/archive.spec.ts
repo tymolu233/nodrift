@@ -13,7 +13,7 @@ const CONFIG: NotesConfig = {
 }
 
 function repo(git = false): string {
-  const root = mkdtempSync(join(tmpdir(), 'govkit-archive-'))
+  const root = mkdtempSync(join(tmpdir(), 'anti-shishan-archive-'))
   if (git) execFileSync('git', ['init'], { cwd: root, stdio: 'ignore' })
   return root
 }

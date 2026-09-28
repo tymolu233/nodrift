@@ -1,8 +1,8 @@
 /**
- * `govkit init` scaffolding: copies template files into a target repository.
+ * `anti-shishan init` scaffolding: copies template files into a target repository.
  *
  * Level semantics are incremental: `--level N` installs the union of manifest
- * lists 0..N. Existing files are never touched without `--force`; `govkit.yml`
+ * lists 0..N. Existing files are never touched without `--force`; `anti-shishan.yml`
  * stays user-owned even under `--force` (it accrues local budgets and rules)
  * and is reported as `configPreserved`.
  */
@@ -17,7 +17,7 @@ export interface ScaffoldPlan {
   created: string[]
   skipped: string[]
   overwritten: string[]
-  /** True when `--force` was given but govkit.yml was deliberately preserved. */
+  /** True when `--force` was given but anti-shishan.yml was deliberately preserved. */
   configPreserved: boolean
 }
 
@@ -85,7 +85,7 @@ export function scaffold(options: ScaffoldOptions): ScaffoldPlan {
         plan.skipped.push(rel)
         continue
       }
-      if (rel === 'govkit.yml') {
+      if (rel === 'anti-shishan.yml') {
         plan.skipped.push(rel)
         plan.configPreserved = true
         continue

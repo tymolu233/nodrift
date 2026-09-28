@@ -8,7 +8,7 @@ import type { GateContext } from '../../src/core/types.js'
 let root: string
 
 beforeEach(() => {
-  root = mkdtempSync(join(tmpdir(), 'govkit-md-wrap-'))
+  root = mkdtempSync(join(tmpdir(), 'anti-shishan-md-wrap-'))
 })
 
 afterEach(() => {

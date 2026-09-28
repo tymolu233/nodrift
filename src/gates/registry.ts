@@ -1,13 +1,13 @@
 /**
  * Built-in gate registry and the enabled-set resolution policy.
  *
- * Policy: a gate runs only when it has a section in govkit.yml and that
+ * Policy: a gate runs only when it has a section in anti-shishan.yml and that
  * section does not say `enabled: false` — explicit opt-in, mirroring the
  * scaffolded config which lists every gate. Unknown gate ids in the config
  * fail loud at resolution time; `--only` may narrow the enabled set but
  * cannot activate a gate the config does not enable.
  */
-import type { Gate, GovkitConfig } from '../core/types.js'
+import type { Gate, KitConfig } from '../core/types.js'
 import { docBudgetsGate } from './doc-budgets.js'
 import { mdLinksGate } from './md-links.js'
 import { mdWrapGate } from './md-wrap.js'
@@ -34,17 +34,17 @@ function registryIds(): string[] {
 /**
  * Resolve which gates to run.
  *
- * @param config normalized govkit.yml
+ * @param config normalized anti-shishan.yml
  * @param only optional `--only` id list; every id must name an enabled gate
  * @returns enabled gates in registry order
  * @throws Error listing unknown config gate ids, or any `--only` id that is
  *   unknown or not enabled
  */
-export function resolveGates(config: GovkitConfig, only?: string[]): Gate[] {
+export function resolveGates(config: KitConfig, only?: string[]): Gate[] {
   const unknown = Object.keys(config.gates).filter((id) => !registryIds().includes(id))
   if (unknown.length > 0) {
     throw new Error(
-      `govkit.yml: unknown gate id(s) ${unknown.map((id) => JSON.stringify(id)).join(', ')} (known: ${registryIds().join(', ')})`,
+      `anti-shishan.yml: unknown gate id(s) ${unknown.map((id) => JSON.stringify(id)).join(', ')} (known: ${registryIds().join(', ')})`,
     )
   }
   const enabled = BUILTIN_GATES.filter((gate) => {
@@ -56,7 +56,7 @@ export function resolveGates(config: GovkitConfig, only?: string[]): Gate[] {
   const rejected = only.filter((id) => !enabledIds.has(id))
   if (rejected.length > 0) {
     throw new Error(
-      `--only: gate(s) ${rejected.map((id) => JSON.stringify(id)).join(', ')} are not enabled in govkit.yml ` +
+      `--only: gate(s) ${rejected.map((id) => JSON.stringify(id)).join(', ')} are not enabled in anti-shishan.yml ` +
         `(enabled: ${[...enabledIds].join(', ') || 'none'})`,
     )
   }

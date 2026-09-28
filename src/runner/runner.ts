@@ -4,7 +4,7 @@
  * supports fail-fast. Harness/flaky-bridge semantics (parallelism, process
  * isolation) are roadmap items; sequential order keeps reports deterministic.
  */
-import type { Gate, GateResult, GovkitConfig, Violation } from '../core/types.js'
+import type { Gate, GateResult, KitConfig, Violation } from '../core/types.js'
 
 /** Outcome of running one gate, including crashes and corpus shortfalls. */
 export interface GateRun {
@@ -18,7 +18,7 @@ export interface RunOptions {
   repoRoot: string
   /** Final gate list, already filtered for enabled/--only by the caller. */
   gates: Gate[]
-  config: GovkitConfig
+  config: KitConfig
   failFast?: boolean
 }
 

@@ -1,6 +1,6 @@
 /**
- * Zero-dependency argv parsing for govkit. Two leading words form the
- * command/subcommand pair (`govkit note new` → command `note`, subcommand
+ * Zero-dependency argv parsing for anti-shishan. Two leading words form the
+ * command/subcommand pair (`anti-shishan note new` → command `note`, subcommand
  * `new`); flags are `--key value`, `--key=value`, or booleans from a fixed
  * allowlist so a value is never swallowed from the next command word.
  */

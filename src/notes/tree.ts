@@ -110,7 +110,7 @@ export function checkNotePath(relPath: string, notesConfig: NotesConfig): NotePa
   if (!notesConfig.classes.includes(cls)) {
     return {
       kind: 'invalid',
-      message: `unknown class folder "${cls}": add it to notes.classes in govkit.yml or move the file into a known class (known: ${notesConfig.classes.join(', ')})`,
+      message: `unknown class folder "${cls}": add it to notes.classes in anti-shishan.yml or move the file into a known class (known: ${notesConfig.classes.join(', ')})`,
     }
   }
   const match = NOTE_FILENAME_RE.exec(fileName)

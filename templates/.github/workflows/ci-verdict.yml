@@ -31,7 +31,7 @@ jobs:
       - run: npm ci
       - run: npm test
 
-  # Example blocking job: govkit gates.
+  # Example blocking job: anti-shishan gates.
   gates:
     runs-on: ubuntu-latest
     steps:

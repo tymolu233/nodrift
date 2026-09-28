@@ -69,4 +69,4 @@ proposed ──落地──▶ implemented ──被取代──▶ archived（�
 
 ## 门禁与命令
 
-`govkit note new <class> <topic>` 按生命周期模板建笔记（日期与路径自动）；`govkit note archive <path>` 归档封印（插 `Archived:` 行并移动）；`govkit check --only note-format,note-classification,note-archive-seal` 结构自检：路径/文件名、头块、Status 与目录一致、归档封印、implemented 无计划态标题、Alternatives 必写。无 Node 环境用 `sh scripts/check-notes`（POSIX shell，零依赖）覆盖同一结构。语义好坏靠写完后的自检清单（见 [docs/notes-quality-gate.md](../../docs/notes-quality-gate.md)），**永不进脚本**。
+`anti-shishan note new <class> <topic>` 按生命周期模板建笔记（日期与路径自动）；`anti-shishan note archive <path>` 归档封印（插 `Archived:` 行并移动）；`anti-shishan check --only note-format,note-classification,note-archive-seal` 结构自检：路径/文件名、头块、Status 与目录一致、归档封印、implemented 无计划态标题、Alternatives 必写。无 Node 环境用 `sh scripts/check-notes`（POSIX shell，零依赖）覆盖同一结构。语义好坏靠写完后的自检清单（见 [docs/notes-quality-gate.md](../../docs/notes-quality-gate.md)），**永不进脚本**。

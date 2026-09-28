@@ -4,13 +4,14 @@
     ".github/PULL_REQUEST_TEMPLATE.md"
   ],
   "1": [
-    "govkit.yml",
+    "anti-shishan.yml",
     "AGENTS.md",
     ".agents/notes/README.md",
     ".agents/notes/templates/proposed.md",
     ".agents/notes/templates/implemented.md",
     ".agents/notes/templates/rejected.md",
-    ".github/workflows/ci-verdict.yml"
+    ".github/workflows/ci-verdict.yml",
+    "docs/notes-quality-gate.md"
   ],
   "2": [
     ".agents/skills/agent-notes/SKILL.md",
@@ -21,7 +22,6 @@
     ".agents/skills/trim-cot-leakage/SKILL.md",
     ".github/workflows/ci.yml",
     ".github/workflows/verify-notes.yml",
-    "docs/notes-quality-gate.md",
     "docs/verify-rules.md",
     "scripts/check",
     "scripts/check-notes"

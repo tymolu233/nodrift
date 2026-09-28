@@ -7,11 +7,11 @@ import { DEFAULT_NOTE_CLASSES, DEFAULT_NOTES_ROOT, loadConfig } from '../../src/
 let dir: string
 
 function config(content: string): void {
-  writeFileSync(join(dir, 'govkit.yml'), content)
+  writeFileSync(join(dir, 'anti-shishan.yml'), content)
 }
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'govkit-config-'))
+  dir = mkdtempSync(join(tmpdir(), 'anti-shishan-config-'))
 })
 
 afterEach(() => {
