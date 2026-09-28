@@ -4,7 +4,7 @@
 
 ## 两种使用形态
 
-- **静态模板层**：`templates/` 即安装树，直接拷进目标仓替换 `<>` 占位即可，L0 连 Node 都不需要。
+- **静态模板层**：`templates/` 即安装树，直接拷进目标仓替换 `<>` 占位即可，连 Node 都不需要（最小集 = `CONTRIBUTING.md` + PR 模板）。
 - **anti-shishan CLI 层**：`init` 安装、`check` 执行、`note`/`ratchet` 维护；模板在构建时打平嵌入 CLI 本体（tarball 只含 dist），`init` 时释放并按目标仓 `package.json` 渲染命令占位（如 `<test command>` → `` `npm test` ``）。仓库内保留 `templates/` 原件，自家 md-wrap/md-links 门禁继续监管它。
 
 ## 安装与裁剪
@@ -18,6 +18,8 @@
 ```sh
 npx anti-shishan-kit init        # 全量装进你的项目目录；已有文件不覆盖，anti-shishan.yml 永远归你改
 ```
+
+`init` 收尾会按仓库状态打印一份区分 agent/human 的 `next steps` 工单——README 缺失、AGENTS.md 残留占位、裁剪配置、首检、接 CI、提交——检出什么报什么，编不出就不报：
 
 之后把 CLI 装进项目依赖，日常走 npm script 或 `npx anti-shishan <command>`：
 
@@ -34,7 +36,7 @@ npx anti-shishan check
 
 | 命令 | 作用 |
 |---|---|
-| `anti-shishan init [--force] [--dir]` | 安装 `templates/manifest.json` 全量清单；`--force` 重刷受管文件但保留 `anti-shishan.yml` |
+| `anti-shishan init [--force] [--dir]` | 释放内嵌模板全量清单、按目标仓渲染命令占位，结尾打印分配的 next steps；`--force` 重刷受管文件但保留 `anti-shishan.yml` |
 | `anti-shishan check [--only <gate,...>] [--fail-fast] [--config] [--dir]` | 跑启用的门禁，任一失败退出 1；`--list` 打印每门的证明边界 |
 | `anti-shishan note new --class <c> --title <t> [--lifecycle proposed\|rejected] [--date]` | 生成正确路径与章节骨架的决策笔记 |
 | `anti-shishan note archive <note-path>` | 仅限 implemented：插 `Archived:` 行、移入 `archived/<class>/`、SHA-256 封存进 append-only manifest |
@@ -64,7 +66,7 @@ npx anti-shishan check
 
 ## 本仓开发（自举）
 
-本仓是它的第一个客户：七个门禁、字数预算、棘轮规则、单判决 CI 全部对自身生效。命令：`npm test`、`npm run coverage`（`src/**` 逐文件 100% 行/分支/函数/语句，防御性死角用带理由的 `v8 ignore` 豁免）、`npm run check`（构建后自跑门禁）。v0.1 交付时 306 个测试全绿。
+本仓是它的第一个客户：七个门禁、字数预算、棘轮规则、单判决 CI 全部对自身生效。命令：`npm test`、`npm run coverage`（`src/**` 逐文件 100% 行/分支/函数/语句，防御性死角用带理由的 `v8 ignore` 豁免）、`npm run check`（构建后自跑门禁）。模板改动只动 `templates/` 原件，`gen:templates` 会在各命令前重建内嵌快照。
 
 ## Roadmap
 
