@@ -16,4 +16,4 @@ The first public cut of `shitcode init` offered `--level 0|1|2` with an incremen
 
 ## Consequences
 
-One template set, one manifest key (`files`), no level-crossing link class by construction; scaffold gained duplicate-entry validation instead. The README's "装进仓库的文件" section carries the philosophy: trim scope with `enabled: false` and file deletion, never with an installer flag. This note supersedes the level design recorded in [`2026-09-28-shitcode-v0-1-design.md`](../process/2026-09-28-shitcode-v0-1-design.md), which cross-links back here.
+One template set, one manifest key (`files`), no level-crossing link class by construction; scaffold gained duplicate-entry validation instead. [docs/install.md](../../../../docs/install.md) section "装进仓库的文件" carries the philosophy: trim scope with `enabled: false` and file deletion, never with an installer flag. This note supersedes the level design recorded in [`2026-09-28-shitcode-v0-1-design.md`](../process/2026-09-28-shitcode-v0-1-design.md), which cross-links back here.
