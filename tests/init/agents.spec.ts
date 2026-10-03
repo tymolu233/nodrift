@@ -16,7 +16,6 @@ describe('AGENT_ADAPTERS registry', () => {
     expect(AGENT_IDS).toEqual(['claude', 'cursor', 'copilot', 'gemini', 'windsurf'])
     expect(new Set(AGENT_ADAPTERS.map((adapter) => adapter.target)).size).toBe(AGENT_ADAPTERS.length)
     for (const adapter of AGENT_ADAPTERS) {
-      expect(adapter.name.length, adapter.id).toBeGreaterThan(0)
       expect(adapter.target.length, adapter.id).toBeGreaterThan(0)
     }
   })

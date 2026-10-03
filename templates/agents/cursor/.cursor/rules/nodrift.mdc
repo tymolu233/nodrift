@@ -10,4 +10,4 @@ Read `AGENTS.md` at the repository root as the constitution and treat its rules 
 
 Decision notes live in `.agents/notes/`; the format, lifecycle, and classification rules are in `.agents/notes/README.md`. Record durable decisions as notes there, never in chat.
 
-Agent skills (pre-push-checks, code-review, agent-notes, prose-standard, find-simplifications, trim-cot-leakage) live in `.agents/skills/`; read the matching skill before you act on its trigger. Run the narrowest `nodrift check` before pushing.
+Agent skills live in `.agents/skills/`; read the matching skill before pushes, reviews, note writing, prose edits, or simplification scans. Run the narrowest `nodrift check` before pushing.

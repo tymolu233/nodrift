@@ -14,8 +14,6 @@
 export interface AgentAdapter {
   /** Id used by `--agents` and nodrift.yml `agents:` (lowercase slug). */
   readonly id: string
-  /** Ecosystem display name for help and error text. */
-  readonly name: string
   /** Repo-relative install location of the adapter's stub file. */
   readonly target: string
   /**
@@ -28,11 +26,11 @@ export interface AgentAdapter {
 
 /** The closed adapter set, in help-text order. */
 export const AGENT_ADAPTERS: readonly AgentAdapter[] = [
-  { id: 'claude', name: 'Claude Code', target: 'CLAUDE.md', skillsMirror: '.claude/skills' },
-  { id: 'cursor', name: 'Cursor', target: '.cursor/rules/nodrift.mdc' },
-  { id: 'copilot', name: 'GitHub Copilot', target: '.github/copilot-instructions.md' },
-  { id: 'gemini', name: 'Gemini CLI', target: 'GEMINI.md' },
-  { id: 'windsurf', name: 'Windsurf', target: '.windsurf/rules/nodrift.md' },
+  { id: 'claude', target: 'CLAUDE.md', skillsMirror: '.claude/skills' },
+  { id: 'cursor', target: '.cursor/rules/nodrift.mdc' },
+  { id: 'copilot', target: '.github/copilot-instructions.md' },
+  { id: 'gemini', target: 'GEMINI.md' },
+  { id: 'windsurf', target: '.windsurf/rules/nodrift.md' },
 ]
 
 /** Valid adapter ids, in registry order. */

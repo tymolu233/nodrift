@@ -1,9 +1,9 @@
 import { execFileSync } from 'node:child_process'
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { filterByGlobs, globOption, isRegularFile, listRepoFiles, matchesAny } from '../../src/core/walk.js'
+import { filterByGlobs, globOption, listRepoFiles, matchesAny } from '../../src/core/walk.js'
 
 let dir: string
 
@@ -76,15 +76,5 @@ describe('globOption', () => {
     expect(globOption({ include: ['**/*.md'] }, 'include')).toEqual(['**/*.md'])
     expect(() => globOption({ include: 'nope' }, 'include')).toThrow(/must be a list of glob strings/)
     expect(() => globOption({ include: [1] }, 'include')).toThrow(/must be a list of glob strings/)
-  })
-})
-
-describe('isRegularFile', () => {
-  it('distinguishes files from directories and missing paths', () => {
-    put('f.txt')
-    expect(isRegularFile(join(dir, 'f.txt'))).toBe(true)
-    expect(isRegularFile(dir)).toBe(false)
-    expect(isRegularFile(join(dir, 'ghost'))).toBe(false)
-    expect(existsSync(dir)).toBe(true)
   })
 })

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { markdownHeadingLines, markdownProseLines, parseMarkdown, visitMarkdown } from '../../src/markdown/parse.js'
+import { markdownHeadingLines, parseMarkdown, visitMarkdown } from '../../src/markdown/parse.js'
 
 function nodeTypes(source: string): string[] {
   const types: string[] = []
@@ -68,60 +68,6 @@ describe('markdownHeadingLines', () => {
     const [heading] = markdownHeadingLines('part one  \npart two\n=============\n')
     expect(heading?.depth).toBe(1)
     expect(heading?.text).toBe('part one part two')
-  })
-})
-
-describe('markdownProseLines', () => {
-  it('keeps prose lines verbatim with their 1-based locations', () => {
-    expect(markdownProseLines('one  \n\ntwo')).toEqual([
-      { index: 1, raw: 'one  ' },
-      { index: 2, raw: '' },
-      { index: 3, raw: 'two' },
-    ])
-  })
-
-  it('keeps blank lines, including the artifactual line after a trailing newline', () => {
-    expect(markdownProseLines('done\n')).toEqual([
-      { index: 1, raw: 'done' },
-      { index: 2, raw: '' },
-    ])
-  })
-
-  it('drops fenced code lines including the fences', () => {
-    const source = 'before\n```ts\ncode && code\n```\nafter'
-    expect(markdownProseLines(source).map((line) => line.raw)).toEqual(['before', 'after'])
-  })
-
-  it('drops indented code blocks', () => {
-    const source = 'before\n\n    code here\n\nafter'
-    expect(markdownProseLines(source).map((line) => line.index)).toEqual([1, 2, 4, 5])
-  })
-
-  it('drops lines that hold nothing but an HTML comment', () => {
-    expect(markdownProseLines('<!-- note -->\nreal').map((line) => line.index)).toEqual([2])
-  })
-
-  it('keeps lines whose text surrounds an inline comment', () => {
-    expect(markdownProseLines('keep <!-- gone --> this')).toEqual([{ index: 1, raw: 'keep <!-- gone --> this' }])
-  })
-
-  it('drops comment-covered trailing text only when nothing visible remains', () => {
-    const source = 'real <!-- tail -->\n<!-- full --> trailing'
-    expect(markdownProseLines(source).map((line) => line.raw)).toEqual(['real <!-- tail -->', '<!-- full --> trailing'])
-  })
-
-  it('drops every line spanned by a multi-line comment, including an empty middle line', () => {
-    const source = 'start\n<!--\n\n-->\nend'
-    expect(markdownProseLines(source).map((line) => line.raw)).toEqual(['start', 'end'])
-  })
-
-  it('drops a line opened by an unterminated comment', () => {
-    expect(markdownProseLines('kept\n<!-- open forever')).toEqual([{ index: 1, raw: 'kept' }])
-  })
-
-  it('does not treat comment-looking text inside code as a comment', () => {
-    const source = 'para\n`<!-- not a comment -->`'
-    expect(markdownProseLines(source).map((line) => line.index)).toEqual([1, 2])
   })
 })
 

@@ -10,6 +10,14 @@
     "node": ">=22"
   },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tymolu233/nodrift.git"
+  },
+  "homepage": "https://github.com/tymolu233/nodrift#readme",
+  "bugs": {
+    "url": "https://github.com/tymolu233/nodrift/issues"
+  },
   "keywords": [
     "agents-md",
     "ai-development",

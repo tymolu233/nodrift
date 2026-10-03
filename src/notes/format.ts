@@ -11,7 +11,7 @@
  */
 import { readFileSync } from 'node:fs'
 import type { Violation } from '../core/types.js'
-import { NOTE_SLUG_RE, isValidNoteDate, type NoteLifecycle, type ParsedNotePath } from './tree.js'
+import { isValidNoteDate, type NoteLifecycle, type ParsedNotePath } from './tree.js'
 
 /** `Status:` line grammar per lifecycle; archived notes stay `implemented`. */
 const STATUS_GRAMMAR: Record<NoteLifecycle, RegExp> = {
@@ -55,19 +55,15 @@ function proseLines(lines: readonly string[]): ProseLine[] {
 }
 
 /**
- * Check one note file against the format contract. `entry` is the note's
- * parsed path (from the tree walk or {@link parseNotePath}); the returned
- * violations carry the repo-relative path and, where known, a 1-based line.
+ * Check one note file against the in-file format contract. `entry` comes from
+ * the tree walk or {@link parseNotePath}, which already rejected a bad filename
+ * date or slug; this function does not re-check the path. Returned violations
+ * carry the repo-relative path and, where known, a 1-based line.
  */
 export function checkNoteFormat(absPath: string, entry: ParsedNotePath): Violation[] {
   const violations: Violation[] = []
   const fail = (message: string, line?: number): void => {
     violations.push({ gate: 'note-format', file: entry.relPath, ...(line === undefined ? {} : { line }), message })
-  }
-
-  if (!isValidNoteDate(entry.date)) fail(`filename date ${entry.date} is not a real calendar date`)
-  if (!NOTE_SLUG_RE.test(entry.slug)) {
-    fail(`slug "${entry.slug}" must be lowercase letters/digits joined by single hyphens`)
   }
 
   const content = readFileSync(absPath, 'utf8').replaceAll('\r\n', '\n')

@@ -83,7 +83,8 @@ export function collectNextSteps(targetDir: string, installedAgents?: string[]):
   }
 
   steps.push('agent: run `nodrift check` — the findings are the remaining to-do list (first-run red is the design)')
-  steps.push('human: merge `.github/workflows/ci-verdict.yml` into your CI and point branch protection at the single `all-checks-passed` check (needs repo settings access)')
+  // ci.yml and ci-verdict.yml both declare workflow name `ci`; verify-notes.yml repeats the note gates.
+  steps.push('human: adopt `.github/workflows/ci-verdict.yml` as the only CI workflow — delete `.github/workflows/ci.yml` and `.github/workflows/verify-notes.yml` (no-CLI fallbacks; `ci.yml` uses the same workflow name `ci`) — and point branch protection at the single `all-checks-passed` check (needs repo settings access)')
   steps.push('human: commit the installed files and add nodrift as a devDependency so teammates run the same gates')
 
   return steps

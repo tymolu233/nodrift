@@ -19,7 +19,7 @@ describe('collectNextSteps', () => {
     const steps = collectNextSteps(dir)
     expect(steps.some((s) => s.startsWith('agent: trim nodrift.yml'))).toBe(true)
     expect(steps.some((s) => s.startsWith('agent: run `nodrift check`'))).toBe(true)
-    expect(steps.some((s) => s.startsWith('human: merge `.github/workflows/ci-verdict.yml`'))).toBe(true)
+    expect(steps.some((s) => s.includes('`.github/workflows/ci-verdict.yml`') && s.includes('delete `.github/workflows/ci.yml`') && s.includes('verify-notes.yml'))).toBe(true)
     expect(steps.some((s) => s.startsWith('human: commit the installed files'))).toBe(true)
   })
 

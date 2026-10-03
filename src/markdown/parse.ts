@@ -1,8 +1,8 @@
 /**
  * Shared GitHub-flavored Markdown parsing and traversal for the built-in gates.
  * Ported from deepseek-harness `scripts/markdown.ts` (MIT), keeping only the
- * generic parts: GFM extension wiring, depth-first visiting, rendered heading
- * text, and prose-line extraction. Repository-specific helpers (destination
+ * generic parts: GFM extension wiring, depth-first visiting, and rendered
+ * heading text. Repository-specific helpers (destination
  * offset rewriting, info-string fence inventories) are not ported; nothing
  * here assumes a repo layout.
  */
@@ -11,16 +11,12 @@ import { gfmFromMarkdown } from 'mdast-util-gfm'
 import { gfm } from 'micromark-extension-gfm'
 import type { Nodes } from 'mdast'
 
-/** One authored Markdown line outside code blocks and rendered-away HTML comments. */
-export interface MarkdownProseLine {
-  /** 1-based source line number. */
-  index: number
-  /** Source text without normalization. */
-  raw: string
-}
-
 /** One parsed Markdown heading, retaining its authored first line and rendered text. */
-export interface MarkdownHeadingLine extends MarkdownProseLine {
+export interface MarkdownHeadingLine {
+  /** 1-based source line number of the heading's first line. */
+  index: number
+  /** Source text of that first line, without normalization. */
+  raw: string
   /** Parsed ATX or Setext heading depth. */
   depth: 1 | 2 | 3 | 4 | 5 | 6
   /** Rendered heading text, excluding raw HTML such as comments. */
@@ -69,85 +65,4 @@ export function markdownHeadingLines(source: string): MarkdownHeadingLine[] {
     })
   })
   return headings
-}
-
-type ColumnRange = readonly [start: number, end: number]
-type OffsetRange = readonly [start: number, end: number]
-
-/**
- * Source-column ranges occupied by parsed HTML comments, keyed by 1-based
- * source line. Only comments mdast sees count: a comment-looking string inside
- * a code block renders and is not masked here.
- */
-function htmlCommentRanges(source: string, rawLines: readonly string[]): Map<number, ColumnRange[]> {
-  const comments: OffsetRange[] = []
-  visitMarkdown(parseMarkdown(source), (node) => {
-    if (node.type !== 'html' || node.position?.start.offset === undefined) return
-    let cursor = 0
-    while (true) {
-      const start = node.value.indexOf('<!--', cursor)
-      if (start < 0) break
-      const close = node.value.indexOf('-->', start + '<!--'.length)
-      const end = close < 0 ? node.value.length : close + '-->'.length
-      comments.push([node.position.start.offset + start, node.position.start.offset + end])
-      cursor = end
-    }
-  })
-
-  const ranges = new Map<number, ColumnRange[]>()
-  let lineOffset = 0
-  rawLines.forEach((raw, index) => {
-    const lineEnd = lineOffset + raw.length
-    for (const [start, end] of comments) {
-      const from = Math.max(start, lineOffset)
-      const to = Math.min(end, lineEnd)
-      const coversEmptyLine = raw.length === 0 && start <= lineOffset && end > lineOffset
-      if (from < to || coversEmptyLine) {
-        const lineRanges = ranges.get(index + 1) ?? []
-        lineRanges.push([from - lineOffset, to - lineOffset])
-        ranges.set(index + 1, lineRanges)
-      }
-    }
-    lineOffset = lineEnd + 1
-  })
-  return ranges
-}
-
-/** Whether a source line retains non-whitespace text after HTML comments disappear. */
-function hasRenderedTextOutsideComments(raw: string, ranges: readonly ColumnRange[] | undefined): boolean {
-  if (ranges === undefined) return true
-  let cursor = 0
-  let visible = ''
-  for (const [start, end] of [...ranges].sort((left, right) => left[0] - right[0])) {
-    visible += raw.slice(cursor, start)
-    cursor = Math.max(cursor, end)
-  }
-  visible += raw.slice(cursor)
-  return visible.trim().length > 0
-}
-
-/**
- * Return source lines outside fenced/indented code blocks and rendered-away
- * HTML comments, with the original text and 1-based locations.
- * @param source Markdown source whose prose should be retained verbatim
- * @returns unfenced lines with their original locations; blank lines outside code and comments are kept
- */
-export function markdownProseLines(source: string): MarkdownProseLine[] {
-  const rawLines = source.split('\n')
-  const comments = htmlCommentRanges(source, rawLines)
-  const codeLines = new Set<number>()
-  visitMarkdown(parseMarkdown(source), (node) => {
-    if (node.type !== 'code' || node.position === undefined) return
-    for (let line = node.position.start.line; line <= node.position.end.line; line += 1) {
-      codeLines.add(line)
-    }
-  })
-  const kept: MarkdownProseLine[] = []
-  rawLines.forEach((raw, i) => {
-    if (codeLines.has(i + 1)) return
-    if (hasRenderedTextOutsideComments(raw, comments.get(i + 1))) {
-      kept.push({ index: i + 1, raw })
-    }
-  })
-  return kept
 }

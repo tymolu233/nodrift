@@ -7,7 +7,7 @@
  * git itself cannot answer — missing binary, broken .git, dubious ownership).
  */
 import { execFileSync } from 'node:child_process'
-import { existsSync, readdirSync, statSync } from 'node:fs'
+import { existsSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { minimatch } from 'minimatch'
 
@@ -97,9 +97,4 @@ export function globOption(options: Record<string, unknown>, key: string): strin
     throw new Error(`${key} must be a list of glob strings`)
   }
   return value as string[]
-}
-
-/** True when the absolute path names a regular file (symlinks resolve to their target). */
-export function isRegularFile(absPath: string): boolean {
-  return existsSync(absPath) && statSync(absPath).isFile()
 }

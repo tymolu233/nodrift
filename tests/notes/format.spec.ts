@@ -331,15 +331,3 @@ describe('checkNoteFormat proposal-era headings', () => {
     expect(checked(PROPOSED_OK)).toEqual([])
   })
 })
-
-describe('checkNoteFormat defensive path facts', () => {
-  it('flags a hand-built entry with a non-calendar date and a non-slug topic', () => {
-    const violations = checked(PROPOSED_OK, { date: '2026-02-30', slug: 'Bad_Slug' })
-    expect(violations.map((v) => v.message)).toEqual(
-      expect.arrayContaining([
-        'filename date 2026-02-30 is not a real calendar date',
-        expect.stringContaining('lowercase letters/digits'),
-      ]),
-    )
-  })
-})

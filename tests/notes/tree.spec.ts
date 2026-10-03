@@ -6,7 +6,6 @@ import type { NotesConfig } from '../../src/core/types.js'
 import {
   NOTES,
   checkNotePath,
-  isArchivedNotePath,
   isValidNoteDate,
   listNoteCandidatePaths,
   notesRootRel,
@@ -163,17 +162,6 @@ describe('parseNotePath', () => {
     })
     expect(parseNotePath('.agents/notes/README.md', CONFIG)).toBeUndefined()
     expect(parseNotePath('.agents/notes/implemented/feature/x.md', CONFIG)).toBeUndefined()
-  })
-})
-
-describe('isArchivedNotePath', () => {
-  it('recognizes files in the archived tree, valid filename or not', () => {
-    expect(isArchivedNotePath('.agents/notes/archived/feature/2026-01-01-x.md', CONFIG)).toBe(true)
-    expect(isArchivedNotePath('.agents/notes/archived/feature/not-dated.md', CONFIG)).toBe(true)
-    expect(isArchivedNotePath('.agents/notes/implemented/feature/2026-01-01-x.md', CONFIG)).toBe(false)
-    expect(isArchivedNotePath('.agents/notes/archived/feature/2026-01-01-x.zh.md', CONFIG)).toBe(false)
-    expect(isArchivedNotePath('.agents/notes/archived/manifest.json', CONFIG)).toBe(false)
-    expect(isArchivedNotePath('.agents/notes/archived/feature/sub/2026-01-01-x.md', CONFIG)).toBe(false)
   })
 })
 

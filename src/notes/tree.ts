@@ -149,21 +149,6 @@ export function parseNotePath(relPath: string, notesConfig: NotesConfig): Parsed
   return check.kind === 'note' ? check.entry : undefined
 }
 
-/**
- * True for Markdown note files directly inside the archived tree
- * (`<root>/archived/<class>/<file>.md`), regardless of filename validity —
- * classification owns validity, this predicate only answers "archived or not" —
- * and regardless of whether an English sibling exists for `.zh.md` copies
- * (which are not notes and return false).
- */
-export function isArchivedNotePath(relPath: string, notesConfig: NotesConfig): boolean {
-  const prefix = `${notesRootRel(notesConfig)}/archived/`
-  if (!relPath.startsWith(prefix)) return false
-  const rest = relPath.slice(prefix.length)
-  if (rest.endsWith('.zh.md') || !rest.endsWith('.md')) return false
-  return rest.split('/').length === 2
-}
-
 function isDirectory(absPath: string): boolean {
   return existsSync(absPath) && statSync(absPath).isDirectory()
 }

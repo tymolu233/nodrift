@@ -12,7 +12,7 @@ export function sha256File(absPath: string): string {
 }
 
 /** SHA-256 hex of the exact string. */
-export function sha256Text(text: string): string {
+function sha256Text(text: string): string {
   return createHash('sha256').update(text, 'utf8').digest('hex')
 }
 
@@ -21,7 +21,7 @@ export function sha256Text(text: string): string {
  * stable across reindentation and trailing-space edits but changes when any
  * non-whitespace character changes.
  */
-export function normalizeForFingerprint(text: string): string {
+function normalizeForFingerprint(text: string): string {
   return text.replaceAll(/\s+/g, ' ').trim()
 }
 
