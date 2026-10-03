@@ -15,10 +15,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # No registry-url: that option writes //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}.
+      # npm treats the line as configured auth and skips the OIDC trusted-publisher exchange,
+      # then PUT fails 404. Publish uses id-token above; npmjs must trust this file (release.yml).
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          registry-url: https://registry.npmjs.org
 
       # Trusted publishing requires npm >= 11.5.1
       - run: npm install -g npm@latest
